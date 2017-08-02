@@ -1,3 +1,3 @@
-Tutorial URL: [http://tldp.org/LDP/abs/html/scriptanalysis.html]
+Tutorial URL: [http://tldp.org/LDP/abs/html/]
 
-Current progress [http://tldp.org/LDP/abs/html/scriptanalysis.html]
+Current progress [http://tldp.org/LDP/abs/html/part1.html]
