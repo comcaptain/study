@@ -52,3 +52,40 @@ echo "$abc" # print 5
 echo "$a" # print 9
 ```
 
+### colon
+
+null command
+
+*command:* It's a bash builtin that does nothing and its exist status is true(i.e. 0)
+
+```bash
+:
+echo $? # 0
+```
+
+*synonym of true:*
+
+```bash
+# This is an endless loop
+while :
+do
+    #....
+done
+```
+
+*placeholder in if-then test and function*
+
+```bash
+if condition
+then :  # Do nothing
+else
+    # do some cool stuff
+fi
+
+not_empty()
+{
+    :
+}
+```
+
+*A new way to empty file:* `: > filename`
