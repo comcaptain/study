@@ -4,6 +4,7 @@
 2. Java generics
 3. Java 8 optional
 4. FOO programming(remember to include optional part)
+5. Code development procedure
 5. Quattro
    - Counterparty
    - OE
