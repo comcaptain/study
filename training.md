@@ -5,6 +5,7 @@
 3. Java 8 optional
 4. FOO programming(remember to include optional part)
 5. Code development procedure
+5. SQL evolution and shell evolution
 5. Quattro
    - Counterparty
    - OE
