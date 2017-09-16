@@ -3,15 +3,18 @@
 1. Java 8 stream
 2. Java generics
 3. Java 8 optional
-4. FOO programming(remember to include optional part)
+4. Event delegation and capture
+5. First chapter of refactoring
+5. Java reflection
+5. FOO programming(remember to include optional part)
 5. Code development procedure
 5. SQL evolution and shell evolution
-5. Quattro
+6. Quattro
    - Counterparty
    - OE
    - Monitoring
-6. Event delegation and capture
 7. Play basics: how to open client detail screen and edit a client(from front to end)
+7. JPA basics
 8. Polling
 9. q-node, q-a, q-button, q-checkbox
 10. q-table
