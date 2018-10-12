@@ -20,8 +20,10 @@ class Solution {
         }
 
         for (int i = 0; i < nums.length; i++) {
-        	if (valuesWithIndex.containsKey(target - nums[i])) {
-        		return new int[]{valuesWithIndex.get(target - nums[i]), i};
+        	int otherHalf = target - nums[i];
+        	if (otherHalf == nums[i]) continue;
+        	if (valuesWithIndex.containsKey(otherHalf)) {
+        		return new int[]{valuesWithIndex.get(otherHalf), i};
         	}
         }
         return new int[]{0, 0};
