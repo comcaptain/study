@@ -14,17 +14,14 @@
 import java.util.*;
 class Solution {
     public int[] twoSum(int[] nums, int target) {
-        Map<Integer, Integer> valuesWithIndex = new HashMap<>();
+    	// Key is second half's value, value is first half's index
+        Map<Integer, Integer> targets = new HashMap<>();
         for (int i = 0; i < nums.length; i++) {
-        	valuesWithIndex.put(nums[i], i);
-        }
-
-        for (int i = 0; i < nums.length; i++) {
-        	int otherHalf = target - nums[i];
-        	Integer otherHalfIndex = valuesWithIndex.get(otherHalf);
-        	if (otherHalfIndex == null || otherHalfIndex == i) continue;
-        	
-			return new int[]{otherHalfIndex, i};
+        	int num = nums[i];
+        	if (targets.containsKey(num)) {
+        		return new int[]{targets.get(num), i};
+        	}
+        	targets.put(target - num, i);
         }
         return new int[]{0, 0};
     }
