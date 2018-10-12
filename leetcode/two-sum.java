@@ -14,15 +14,13 @@
 import java.util.*;
 class Solution {
     public int[] twoSum(int[] nums, int target) {
-    	// Key is second half's value, value is first half's index
-        Map<Integer, Integer> targets = new HashMap<>();
-        for (int i = 0; i < nums.length; i++) {
-        	int num = nums[i];
-        	if (targets.containsKey(num)) {
-        		return new int[]{targets.get(num), i};
-        	}
-        	targets.put(target - num, i);
-        }
-        return new int[]{0, 0};
+		int pow2 =(int)Math.pow(2, 12), limit = pow2 / 2;
+		short[] positions = new short[pow2];
+		for(int i = 0; i < nums.length; i++) {
+		    int complement = target - nums[i], complPos = positions[(complement + limit) % pow2];
+		    if(complPos != 0) return new int[] { complPos + Short.MAX_VALUE / 2, i };
+		    positions[(nums[i] + limit) % pow2] = (short)(i - Short.MAX_VALUE / 2);
+		}
+		return null;
     }
 }
