@@ -21,10 +21,10 @@ class Solution {
 
         for (int i = 0; i < nums.length; i++) {
         	int otherHalf = target - nums[i];
-        	if (otherHalf == nums[i]) continue;
-        	if (valuesWithIndex.containsKey(otherHalf)) {
-        		return new int[]{valuesWithIndex.get(otherHalf), i};
-        	}
+        	Integer otherHalfIndex = valuesWithIndex.get(otherHalf);
+        	if (otherHalfIndex == null || otherHalfIndex == i) continue;
+        	
+			return new int[]{otherHalfIndex, i};
         }
         return new int[]{0, 0};
     }
