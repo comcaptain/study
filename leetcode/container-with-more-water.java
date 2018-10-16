@@ -17,30 +17,22 @@
  * first element, because the height cannot be higher than its own value, and width is the max possible width. Calculate its
  * area, compare with recorded maxArea, and replace if it's greater. After finishing this round of scan, do the same thing
  * the reverse order.
+ * New solution idea is already clear if you understand the previous idea
  */
 class Solution {
     public int maxArea(int[] heights) {
         int startIndex = 0, endIndex = heights.length - 1;
-        boolean reversed = false;
         int maxArea = 0;
         while (startIndex < endIndex) {
-        	if (reversed) {
-        		int startValue = heights[endIndex];
-	        	while (heights[startIndex] <= startValue) {
-	        		maxArea = Math.max(maxArea, heights[startIndex] * (endIndex - startIndex));
-	        		if (++startIndex >= endIndex) return maxArea;
-	        	}
-	        	if (endIndex <= startIndex) return maxArea;
+        	int startValue = heights[startIndex];
+        	int endValue = heights[endIndex];
+        	maxArea = Math.max(maxArea, Math.min(startValue, endValue) * (endIndex - startIndex));
+        	if (startValue < endValue) {
+        		startIndex++;
         	}
         	else {
-        		int startValue = heights[startIndex];
-	        	while (heights[endIndex] <= startValue) {
-	        		maxArea = Math.max(maxArea, heights[endIndex] * (endIndex - startIndex));
-	        		if (--endIndex <= startIndex) return maxArea;
-	        	}
-	        	if (startIndex >= endIndex) return maxArea;
+        		endIndex--;
         	}
-        	reversed = !reversed;
         }
         return maxArea;
     }
