@@ -11,3 +11,27 @@
   - The page you see is the applciation shell. The shell is controller by an Angular component named AppComponent. Componetns are the fundamental building blocks of Angular applications. They display data on the screen, listen for user input, and take action based on that input
   - Encountered one issue: node is not found in command line even after regiestering it PATH. I finally fixed it by running the installer and click the repair button
   - Use `ng generate component heroes` to create new component: heroes
+  - [Next: Add a hero property](https://angular.io/tutorial/toh-pt1)
+
+### `Component` annotation
+
+```typescript
+import { Component, OnInit } from '@angular/core';
+
+@Component({
+  // The component's css selector
+  selector: 'app-heroes',
+  templateUrl: './heroes.component.html',
+  styleUrls: ['./heroes.component.css']
+})
+// Always `export` the component class so that you can import elsewhere, like `app.module.ts`
+export class HeroesComponent implements OnInit {
+
+  constructor() { }
+  // Is a lifecyle hook. Angular calls ngOnInit shortly after creating a component. It's a good place to put initialization logic
+  ngOnInit() {
+  }
+
+}
+
+```
