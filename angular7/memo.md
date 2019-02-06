@@ -35,3 +35,37 @@ export class HeroesComponent implements OnInit {
 }
 
 ```
+
+### Bean ts class
+
+```typescript
+export class Hero {
+    id: number;
+    name: string;
+}
+```
+
+And to use this bean class in component, you should import it first: `import { Hero } from '../hero'`. And you can create an instance like this: `{id: 1, name: 'Windstorm'}`
+
+### Two-way binding
+
+In the component html:
+```html
+<!-- hero is a property in corresponding component class -->
+<input [(ngModel)]="hero.name" />
+```
+
+To make this work, you need to import `FormsModule` in `/app/app.module.ts`, like this:
+
+```ts
+import { FormsModule } from '@angular/forms';
+
+//...
+imports: [
+  BrowserModule,
+  // new one
+  FormsModule
+],
+```
+
+This top module class defines things used in html
