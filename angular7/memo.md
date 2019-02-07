@@ -102,3 +102,9 @@ onSelect(hero: Hero): void {
   ...
 </div>
 ```
+
+### Dynamically change class
+
+```html
+<li [class.selected]="hero === selectedHero"></li>
+```
