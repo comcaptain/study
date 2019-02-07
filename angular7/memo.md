@@ -124,3 +124,51 @@ import { Component, OnInit, Input } from '@angular/core';
 //...
 @Input() hero: Hero;
 ```
+
+### Create new service
+
+Component should focus on presenting the data, not focusing on how to access/update data. This kind of work should be done by service.
+
+Use command line `ng generate service hero`:
+
+```typescript
+import { Injectable } from '@angular/core';
+import { Hero } from './hero'
+import { HEROES } from './mock-heroes'
+
+// This makes this class injectable into other things, e.g. component
+@Injectable({
+  // With registeration on root, Angular would create a shared, single instance and inject is into whereever that asks for it
+  providedIn: 'root'
+})
+export class HeroService {
+
+  constructor() { }
+
+  // This is how type script define return type and array type
+  getHeroes(): Hero[] {
+    return HEROES;
+  }
+}
+
+```
+
+### Inject service into component
+
+```typescript
+import { HeroService } from '../hero.service'
+  //...
+  heroes: Hero[];
+
+  // This would create a private property
+  constructor(private heroService: HeroService) { }
+
+  loadHeroes(): void {
+    this.heroes = this.heroService.getHeroes();
+  }
+
+  // This will be invoked by Angular in a proper time after this compnent's instance is created
+  ngOnInit() {
+    this.loadHeroes();
+  }
+```
