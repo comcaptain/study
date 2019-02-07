@@ -11,7 +11,7 @@
   - The page you see is the applciation shell. The shell is controller by an Angular component named AppComponent. Componetns are the fundamental building blocks of Angular applications. They display data on the screen, listen for user input, and take action based on that input
   - Encountered one issue: node is not found in command line even after regiestering it PATH. I finally fixed it by running the installer and click the repair button
   - Use `ng generate component heroes` to create new component: heroes
-  - [Next: Display a Heroes List](https://angular.io/tutorial/toh-pt2)
+  - [Next: Show messages](https://angular.io/tutorial/toh-pt4)
 
 ### `Component` annotation
 
