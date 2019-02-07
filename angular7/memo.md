@@ -108,3 +108,19 @@ onSelect(hero: Hero): void {
 ```html
 <li [class.selected]="hero === selectedHero"></li>
 ```
+
+### Use component inside component
+
+The key point is how to inject data into the component. In invoker side:
+
+```html
+<!-- This is one way binding, and injects selectedHero into hero-detail component's `hero` property -->
+<app-hero-detail [hero]="selectedHero"></app-hero-detail>
+```
+
+And in sub-component:
+```typescript
+import { Component, OnInit, Input } from '@angular/core';
+//...
+@Input() hero: Hero;
+```
