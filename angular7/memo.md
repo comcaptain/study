@@ -172,3 +172,19 @@ import { HeroService } from '../hero.service'
     this.loadHeroes();
   }
 ```
+
+### Use `Observable` to get data in asynchronized way
+
+`Observable` is similar to `Promise` but is more powerful. I do not go into details here.
+
+```typescript
+import { Observable, of } from 'rxjs'
+  
+  // You can use of to create an Observable instance. We use Observable instead of Promise here because Angular uses Observable in its ajax components
+  getHeroes(): Observable<Hero[]> {
+    return of(HEROES);
+  }
+
+// And you can use subscribe to listen to it
+this.heroService.getHeroes().subscribe(heroes => this.heroes = heroes);
+```
