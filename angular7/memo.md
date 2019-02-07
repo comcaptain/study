@@ -77,3 +77,28 @@ This top module class defines things used in html
   <span class="badge">{{hero.id}}</span> {{hero.name}}
 </li>
 ```
+
+### bind listener
+
+```html
+<!-- onSelect is a function in component ts file -->
+<li *ngFor="let hero of heroes" (click)="onSelect(hero)" >
+  <span class="badge">{{hero.id}}</span> {{hero.name}}
+</li>
+```
+
+```typescript
+selectedHero: Hero;
+
+onSelect(hero: Hero): void {
+  this.selectedHero = hero;
+}
+```
+
+### Use if-statement
+
+```html
+<div *ngIf="selectedHero">
+  ...
+</div>
+```
