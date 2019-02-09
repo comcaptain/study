@@ -256,3 +256,43 @@ Replace `<app-heroes>` with `<router-outlet>` like this:
 // If it's exactly root path, then redirect to /dashboard
 {path: "", redirectTo: "/dashboard", pathMatch: "full"}
 ```
+
+### Pass parameters in route
+
+Add new route
+```js
+{path: "hero/:id", component: HeorDetailComponent}
+```
+
+And to use this new route:
+```html
+<a routerLink='/hero/{{hero.id}}'>{{hero.name}}</a>
+```
+
+And to get parameter value in target component:
+
+```typescript
+import { ActivatedRoute } from '@angular/router'
+  // Inject current route
+  constructor(
+    private route: ActivatedRoute
+  ) { }
+
+  // Get value
+  // `+` can be a unary operator to change other objects to number, this is supported by native JS, even on IE
+  // snapshot is a static image of the route information shortly after the component is created.
+  let id = +this.route.snapshot.paramMap.get('id');
+```
+
+### Do go back like what it is in browser
+
+```typescript
+import { Location } from '@angular/common'
+  
+  constructor(private location: Location) {}
+
+  getBack(): void {
+    this.location.back();
+  }
+
+```
