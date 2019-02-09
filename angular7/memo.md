@@ -249,3 +249,10 @@ Replace `<app-heroes>` with `<router-outlet>` like this:
 <!-- The routerLink attribute is selector for RouterLink directive, which is exported by RouterModule -->
 <a routerLink="/heroes">Heroes</a>
 ```
+
+### Add route redirection
+
+```js
+// If it's exactly root path, then redirect to /dashboard
+{path: "", redirectTo: "/dashboard", pathMatch: "full"}
+```
