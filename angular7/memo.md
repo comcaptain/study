@@ -188,3 +188,64 @@ import { Observable, of } from 'rxjs'
 // And you can use subscribe to listen to it
 this.heroService.getHeroes().subscribe(heroes => this.heroes = heroes);
 ```
+
+### How to implement routes
+
+#### 1. Create an empty module
+
+By convention, the module name should be 'app-routing'. And the command line is:
+
+```bash
+# --flat is to put source files in `/app` folder instead of in its own folder
+# --module=app is to tell CLI to register this module into app module's `imports`. So that later, directives exported in app-routing can be used in tempalte html
+ng generate module app-routing --flat --module=app
+```
+
+#### 2. Clean up default implemenation and export `RouterModule`
+
+We do not define components inside route module, so there is no need to keep `declarations` (used to declare component) and `imports` (used to import things used in component template html).
+
+We should also export `RouterModule`, so that useful directives exported by `RouterModule` can be used by app module's component html. Then the final version would be like this:
+
+```typescript
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router'
+@NgModule({
+  exports: [RouterModule]
+})
+export class AppRoutingModule {
+}
+```
+
+### 3. Create a route
+
+```typescript
+const routes: Routes = [
+  {path: "heroes", component: HeroesComponent}
+]
+```
+
+### 4. Initialize the router and make it listen for browser location changes
+
+```typescript
+// `forRoot` method supplies the service providers and directives needed for routing, and performs the initial navigation based on the current browser URL
+imports: [RouterModule.forRoot(routes)]
+```
+
+### 5. Apply routing to application
+
+Replace `<app-heroes>` with `<router-outlet>` like this:
+
+```html
+<h1>{{title}}</h1>
+<!-- This is a placeholder for routing to render content. This directive comes from `RouterModule`, which is exported by routing module. -->
+<router-outlet></router-outlet>
+<app-messages></app-messages>
+```
+
+### 6. Add a navigation link
+
+```html
+<!-- The routerLink attribute is selector for RouterLink directive, which is exported by RouterModule -->
+<a routerLink="/heroes">Heroes</a>
+```
