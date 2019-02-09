@@ -160,7 +160,7 @@ import { HeroService } from '../hero.service'
   //...
   heroes: Hero[];
 
-  // This would create a private property
+  // This would create a private property. If you want to use this service outside, e.g. in component html, then you should declare it as public
   constructor(private heroService: HeroService) { }
 
   loadHeroes(): void {
