@@ -13,6 +13,9 @@
   - Use `ng generate component heroes` to create new component: heroes
   - [Next: Show messages](https://angular.io/tutorial/toh-pt4)
 
+### TODO list
+- ES6 js features
+
 ### `Component` annotation
 
 ```typescript
@@ -296,3 +299,77 @@ import { Location } from '@angular/common'
   }
 
 ```
+
+### Simulate real HTTP server with `in-memory-web-api`
+
+#### Step 1. Install package
+
+```bash
+# With this `--save` option, this new dependency is automatically added to `package.json`
+npm install angular-in-memory-web-api --save
+```
+
+#### Step 2. Enable HTTP services
+
+`import { HttpClientModule }    from '@angular/common/http';`, then add it to app module's `imports`.
+
+Without it, anything requiring HTTPClient will not work
+
+#### Step 3. Create a fake DB
+
+```typescript
+import { InMemoryDbService } from 'angular-in-memory-web-api';
+import { Hero } from './hero';
+import { Injectable } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class InMemoryDataService implements InMemoryDbService {
+  createDb() {
+    const heroes = [
+      { id: 11, name: 'Mr. Nice' },
+      { id: 12, name: 'Narco' },
+      { id: 13, name: 'Bombasto' },
+      { id: 14, name: 'Celeritas' },
+      { id: 15, name: 'Magneta' },
+      { id: 16, name: 'RubberMan' },
+      { id: 17, name: 'Dynama' },
+      { id: 18, name: 'Dr IQ' },
+      { id: 19, name: 'Magma' },
+      { id: 20, name: 'Tornado' }
+    ];
+    // This is equivalent to {heroes: heroes}. Then you can get heroes from url: `/api/heroes`
+    return {heroes};
+  }
+
+  // Overrides the genId method to ensure that a hero always has an id.
+  // If the heroes array is empty,
+  // the method below returns the initial number (11).
+  // if the heroes array is not empty, the method below returns the highest
+  // hero id + 1.
+  genId(heroes: Hero[]): number {
+    return heroes.length > 0 ? Math.max(...heroes.map(hero => hero.id)) + 1 : 11;
+  }
+}
+```
+
+#### Step 4. Use in-memory DB service to intercept real HTTP requests
+
+Add following things to app module's imports:
+
+```typescript
+// The HttpClientInMemoryWebApiModule module intercepts HTTP requests
+// and returns simulated server responses.
+// Remove it when a real server is ready to receive requests.
+HttpClientInMemoryWebApiModule.forRoot(
+  InMemoryDataService, { dataEncapsulation: false }
+)
+```
+
+### Send ajax request and get data
+
+1. Add import: `import { HttpClient, HttpHeaders } from '@angular/common/http';`
+2. Inject it: `constructor(private http: HttpClient)`
+3. Use it: `this.http.get<Hero[]>("/api/heroes")`. This will return `Observable<Hero[]>`. This will only work if ajax returns data like this: `[{id: 1, name: "abc"}]`
+
