@@ -413,10 +413,68 @@ heroes.pipe(
 );
 ```
 
-### Use ajax to PUT data to server
+### Use ajax to PUT/POST data to server
 
 ```typescript
 this.http.put(this.heroesURL, hero, {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
 })
+```
+
+`POST` is similar, just change put to post
+
+### Get value from input node
+
+```html
+<input #heroName />
+<button (click)="add(heroName.value); heroName.value = ''"></button>
+```
+
+### Be sure to subscribe `Observable`
+
+Even if you do not want result. Because similar to java's `Stream`, if you do you subscribe to it, then it will not do the actual work. For HttpClient, it is the ajax request
+
+### Use `Subject` to implement search while input
+
+A `Subject` is both a source of observable values and an `Observable` itself. You can subscribe to a `Subject` as you would do on any `Observable`.
+
+You can push values to it using `next` function, like below:
+```typescript
+private searchTerms = new Subject<string>();
+
+search(term: string) {
+  this.searchTerms.next(term);
+}
+```
+
+And you can use a series of RxJS operators to do a lot of interesting things:
+
+```typescript
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators'
+
+// The `$` suffix is a naming convention for Observable variable
+this.heroes$ = this.searchTerms.pipe(
+  // Wait for 300 ms before emiting next element inserted
+  debounceTime(300),
+  // Stop emiting if current element is same as previous element
+  distinctUntilChanged(),
+  // Switch to new Observable once a new element is emitted. And the previous Observable would be cancelled
+  switchMap((term: string) => this.heroService.searchHeroes(term))
+);
+```
+
+Then in html, you can use `async` pipe to iterate over observable value
+
+```html
+<ul>
+  <li *ngFor="let hero of heroes$ | async">
+    <a routerLink="/detail/{{hero.id}}">{{hero.name}}</a>
+  </li>
+</ul>
+```
+
+And you can bind input event like this:
+
+```html
+<input #searchBox (input)="searchHeroes(searchBox.value)" />
 ```

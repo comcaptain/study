@@ -5,6 +5,10 @@ import { Observable, of } from 'rxjs'
 import { map, catchError, tap } from 'rxjs/operators'
 import { MessageService } from './message.service'
 
+const HTTP_OPTIONS = {
+  headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -47,11 +51,39 @@ export class HeroService {
   }
 
   updateHero(hero: Hero): Observable<any> {
-    return this.http.put(this.heroesURL, hero, {
-      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-    }).pipe(
+    return this.http.put(this.heroesURL, hero, HTTP_OPTIONS).pipe(
       tap(_ => this.log(`Updated hero ${hero.id}`)),
       catchError(this.handleError<Hero>("getHero"))
     )
+  }
+
+  addHero(hero: Hero): Observable<Hero> {
+    return this.http.post<any>(this.heroesURL, hero, HTTP_OPTIONS).pipe(
+      map(v => v.data),
+      tap(hero => this.log(`Added hero: id=${hero.id}`)),
+      catchError(this.handleError<Hero>('addHero'))
+    );
+  }
+
+  deleteHero(hero: Hero | number): Observable<Hero> {
+    const id = typeof hero === 'number' ? hero : hero.id;
+    const url = `${this.heroesURL}/${id}`
+    return this.http.delete<any>(url, HTTP_OPTIONS).pipe(
+      map(v => v.data),
+      tap(hero => this.log(`Deleted hero: id=${hero.id}`)),
+      catchError(this.handleError<Hero>('addHero'))
+    );
+  }
+
+  searchHeroes(term: string): Observable<Hero[]> {
+    if (!term.trim()) {
+      return of([]);
+    }
+
+    return this.http.get<any>(`${this.heroesURL}/?name=${term}`).pipe(
+      map(v => v.data),
+      tap(_ => this.log(`Found ${_.length} heroes matching "${term}"`)),
+      catchError(this.handleError<Hero[]>("searchHeroes", []))
+    );
   }
 }
