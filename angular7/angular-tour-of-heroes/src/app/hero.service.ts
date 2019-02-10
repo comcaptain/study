@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http'
 import { Hero } from './hero'
 import { HEROES } from './mock-heroes'
 import { Observable, of } from 'rxjs'
-import { map } from 'rxjs/operators'
+import { map, catchError } from 'rxjs/operators'
 import { MessageService } from './message.service'
 
 @Injectable({
@@ -19,11 +19,22 @@ export class HeroService {
 
   getHeroes(): Observable<Hero[]> {
   	this.log("HeroService: fetching heroes");
-  	return this.http.get<any>(this.heroesURL).pipe(map(v => v.data));
+  	return this.http.get<any>(this.heroesURL)
+      .pipe(
+        map(v => v.data),
+        catchError(this.handleError("getHeroes", [])));
   }
 
   private log(message: string) {
     this.messageService.add(message)
+  }
+
+  private handleError<T> (operation = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+      console.error(error);
+      this.log(`${operation} failed: ${error.message}`)
+      return of(result);
+    }
   }
 
   getHero(id: number): Observable<Hero> {

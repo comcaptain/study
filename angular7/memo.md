@@ -373,3 +373,31 @@ HttpClientInMemoryWebApiModule.forRoot(
 2. Inject it: `constructor(private http: HttpClient)`
 3. Use it: `this.http.get<Hero[]>("/api/heroes")`. This will return `Observable<Hero[]>`. This will only work if ajax returns data like this: `[{id: 1, name: "abc"}]`
 
+### Some tricks in typescript
+
+```typescript
+// You can use default values in function parameter
+// You can use generate type like java
+// To make variable optional, use `?` as suffix
+private handleError<T> (operation = 'operation', result?: T) {
+  // Unlike java, you can assign return type in lambda expression
+  return (error: any): Observable<T> => {
+    console.error(error);
+    this.log(`${operation} failed: ${error.message}`)
+    return of(result);
+  }
+}
+```
+
+### How to catch errors in `Observable`
+
+You have to import an operator: `import { catchError } from 'rxjs/operators'`
+
+Then you can use it like this:
+
+```typescript
+abc.pipe(catchError((error: any) => {
+  console.error(any);
+  return of('default value when error happens')
+}))
+```
