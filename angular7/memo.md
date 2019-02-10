@@ -412,3 +412,11 @@ heroes.pipe(
   tap(v => console.log(`Fetched ${v.length} heroes`))
 );
 ```
+
+### Use ajax to PUT data to server
+
+```typescript
+this.http.put(this.heroesURL, hero, {
+  headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+})
+```
