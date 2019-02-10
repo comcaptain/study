@@ -401,3 +401,14 @@ abc.pipe(catchError((error: any) => {
   return of('default value when error happens')
 }))
 ```
+
+### `Observable` is similar to stream in java
+
+`import { map, tap } from 'rxjs/operators'`
+
+```typescript
+heroes.pipe(
+  map(v => v.data),
+  tap(v => console.log(`Fetched ${v.length} heroes`))
+);
+```

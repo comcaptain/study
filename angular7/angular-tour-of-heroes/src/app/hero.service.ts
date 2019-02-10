@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http'
 import { Hero } from './hero'
 import { HEROES } from './mock-heroes'
 import { Observable, of } from 'rxjs'
-import { map, catchError } from 'rxjs/operators'
+import { map, catchError, tap } from 'rxjs/operators'
 import { MessageService } from './message.service'
 
 @Injectable({
@@ -22,6 +22,7 @@ export class HeroService {
   	return this.http.get<any>(this.heroesURL)
       .pipe(
         map(v => v.data),
+        tap(v => this.log(`Fetched ${v.length} heroes`)),
         catchError(this.handleError("getHeroes", [])));
   }
 
