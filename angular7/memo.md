@@ -14,6 +14,7 @@
   - [Next: Show messages](https://angular.io/tutorial/toh-pt4)
 - Fundamentals
   - [Architecture](https://angular.io/guide/architecture)
+    - [Next Steps](https://angular.io/guide/architecture-next-steps)
 
 ### TODO list
 - ES6 js features
