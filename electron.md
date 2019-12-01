@@ -51,6 +51,9 @@ Put all html/js/css code in electron, electron would package them as installer a
 
 *Benefits:*
 - html/js/css code is all in user's PC, so a page would be loaded more quickly
+- No need to worry about issue like below:
+  - Browser cache issue
+  - Size of referenced js files
 - Forces programmer to separate front-end and backend code: Webserver only provides RESTful JSON API and front-end code does all the rendering work
 
 *Drawbacks:*
@@ -62,6 +65,8 @@ Put all html/js/css code in electron, electron would package them as installer a
 **2nd route: Put front-end code in electron**
 
 Put all html/js/css in webserver. `main.js` is mainly used to start the Chromium windows, and its code does not need much update. In this case, if `main.js` is not updated,  client-side program only needs to be updated when Chromium needs to be updated.
+
+*NOTE: Even if js code is in webserver, it can still invoke the nodejs and electron API*
 
 ### Chromium version
 
