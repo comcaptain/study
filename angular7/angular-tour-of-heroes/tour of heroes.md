@@ -15,8 +15,8 @@ import { Component, OnInit } from '@angular/core';
 export class HeroesComponent implements OnInit {
 
   constructor() { }
-  // Is a lifecyle hook. Angular calls ngOnInit shortly after creating a component. It's a good place to put initialization logic
-  ngOnInit() {
+    // Is a lifecyle hook. Angular calls ngOnInit shortly after creating a component. It's a good place to put initialization logic
+    ngOnInit() {
   }
 
 }
