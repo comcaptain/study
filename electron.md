@@ -23,7 +23,9 @@ win.loadFile("index.html")
 
 In the js referenced in loaded html page, you can:
 - Write whatever code that works in normal Chrome browser
-- Write code that uses nodejs API (only if `webPreferences.nodeIntegration` option is true when window is opened). This means that you can use full power of nodejs and do things like visiting local file system, visiting local DB... In sum, you can do whatever a backend program can do
+- Write code that uses nodejs API (only if `webPreferences.nodeIntegration` option is true when window is opened). This means that you can use full power of nodejs and do things like visiting local file system, visiting local DB... In sum, you can do whatever a backend program can do. With this, we can do fancy stuff like this:
+  - In the main process, get data from the webserver and stores result into DB/file/memory
+  - When a new web page is opened, get data from the DB/file/memory rather than webserver. Then opening 10 web pages is same as opening 1 web page from server's point of view. And tasks like big data filtering can be done in client's PC. With this, web page would be more responsive and burden of server is lessened.
 - Fully control the Chromium window by invoking API provided by electron. With the API, you can do things like below:
   - Lock the Chromium window and make it not moveable
   - Move the Chromium window to a specific position
