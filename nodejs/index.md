@@ -22,5 +22,24 @@
   yarn add https://github.com/fancyapps/fancybox#5cda5b529ce3fb6c167a55d42ee5a316e921d95f
   ```
 
+- Enhance console to add timestamp and level
+
+  ```javascript
+  require('console-stamp')(console, { pattern: 'yyyy-MM-dd HH:MM:ss.l' });
+  ```
+
+- Get input from command line
+
+  ```javascript
+  const readline = require('readline').createInterface({
+      input: process.stdin,
+      output: process.stdout
+  });
+  function question(questionText) {
+      return new Promise(resolve => readline.question(questionText + " > ", resolve));
+  }
+  const answer = await question("Is this search area good for you? Y/N");
+  ```
+
   
 
