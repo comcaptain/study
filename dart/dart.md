@@ -15,5 +15,9 @@ Dart is chosen because:
 - Easy to learn for java/swift/js developers
 - Optimized for writing UI
 
+### Environment Setup
 
+[Set up IntelliJ and Dart SDK](https://dart.dev/tools/jetbrains-plugin)
+
+### [Intro to Dart for Java Developers](https://codelabs.developers.google.com/codelabs/from-java-to-dart)
 
