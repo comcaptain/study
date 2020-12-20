@@ -4,7 +4,7 @@ Flutter is a framework that develops apps for IOS, Android and Web.
 
 Flutter has following goals:
 
-- Write once, run everywhere (IOS, Android and Web)\
+- Write once, run everywhere (IOS, Android and Web)
 - Fast development experience
 
 Dart is chosen because:
@@ -44,7 +44,7 @@ void main(List<String> args) {
 
 - Unlike java, method & variables can be defined outside a class. e.g. this main method is defined outside a class
 - Like java, main accepts a list of string as program arguments
-- But unlike java, you can remove `List<String> args` from `main` method if there is program arguments
+- But unlike java, you can remove `List<String> args` from `main` method if there is no program arguments
 
 ## Class constructor
 
@@ -78,7 +78,7 @@ void main(List<String> args) {
 
 - It's same as java, `new` is used to create a instance
 - Similar to java 11, you can use `var` as type
-- If value would not change, `final` can be replaced with `var`
+- If value would not change, `final` can be used instead of `var`
 
 ## `toString` method
 
@@ -205,11 +205,136 @@ void main() {
 - `int` can also be null
 - Named parameter and normal parameter can be mixed, but named parameters should always come after all normal parameters. i.e. `Rectangle1(this.width, {this.origin = const Point(0, 0)}, this.height);` is not allowed
 
-## Progress-pin
+## Abstract class & interface
 
-Next section is: `4. Create a factory`
+```dart
+import 'dart:math';
 
+abstract class Shape {
+  num get area;
 
+  void test() {
+    print("My area is ${this.area}");
+  }
+}
+
+class Circle extends Shape {
+  final num radius;
+  Circle(this.radius);
+  num get area => pi * pow(radius, 2);
+}
+
+class Square implements Shape {
+  final num side;
+  Square(this.side);
+
+  @override
+  num get area => pow(side, 2);
+
+  @override
+  void test() {
+    print("I have to override, because implements is used instead of extends");
+  }
+}
+
+main() {
+  final circle = Circle(2);
+  final square = Square(2);
+  print(circle.area);
+  print(square.area);
+  circle.test();
+  square.test();
+}
+```
+
+- abstract class is similar to java
+  - You can create abstract/non-abstract method
+  - When children class extends abstract class, abstract class has to be implemented
+- What's different from java is:
+  - **Any class, including abstract class can be used as interface**
+  - In this case, `implements` should be used instead of `extends`
+  - Then like java, all methods in implement target class/abstract class have to be implemented
+  - **Dart does not have interface, you can use abstract class to simulate it**
+
+## Exception
+
+Similar to js, you can throw a string as exception, like this:
+
+```dart
+main() {
+  throw "abc";
+}
+```
+
+## `factory` keyword
+
+```dart
+import 'dart:math';
+
+abstract class Shape {
+  num get area;
+
+  factory Shape(String type) {
+    if (type == 'circle') return Circle(2);
+    if (type == 'square') return Square(2);
+    throw "Unsupported shape $type";
+  }
+}
+
+class Circle implements Shape {
+  final num radius;
+  Circle(this.radius);
+  num get area => pi * pow(radius, 2);
+}
+
+class Square implements Shape {
+  final num side;
+  Square(this.side);
+
+  @override
+  num get area => pow(side, 2);
+}
+
+Shape shapeFactory(String type) {
+  if (type == 'circle') return Circle(2);
+  if (type == 'square') return Square(2);
+  throw 'Can\'t create $type.';
+}
+
+main() {
+  print(new Shape("circle").area);
+  print(Shape("square").area);
+}
+```
+
+- This makes you new an interface like new a class
+- This would only work if children implement the abstract class as interface, not when children `extends` the abstract class
+
+## Repeated string syntactic suger
+
+```dart
+String scream(int length) => "A${'a' * length}h!";
+
+main() {
+  final values = [1, 2, 3, 5, 10, 50];
+  for (var length in values) {
+    print(scream(length));
+  }
+}
+```
+
+- Similar to other languages that have this feature, `<string> * <num>` is used to achieve this
+
+## Stream in dart
+
+```javascript
+String scream(int length) => "A${'a' * length}h!";
+
+main() {
+  final values = [1, 2, 3, 5, 10, 50];
+  values.skip(1).take(3).map(scream).forEach(print);
+}
+```
 
 
 
