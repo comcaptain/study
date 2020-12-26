@@ -33,3 +33,10 @@
 4. Now use Windows IntelliJ to open the project
    - There are compiler errors
    - **It seems that that's because flutter packages are not recognized, cannot figure out how to resolve it. Quit**
+
+# Plan B
+
+## Idea
+
+- Use `rsync` to sync file between Mac and Windows
+- Only sync files that matters (I can refer to flutter gitignore file about which files should be synced)
