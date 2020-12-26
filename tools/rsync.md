@@ -32,6 +32,48 @@ rsync -aP dir1/ dir2
 rsync -aP ../git/study/ tony@192.168.162.118:~/tmp/study_mirror
 ```
 
+## Keep two folders in Sync (single-direction)
+
+```bash
+#!/bin/bash
+
+while inotifywait -r -e modify,create,delete,move ~/c/git/study/; do
+	rsync -aP --delete ~/c/git/study/ ~/c/tmp/study_mirror
+done
+```
+
+## Sync two folders with gitignore
+
+```bash
+#!/bin/bash
+
+function doSync()
+{	
+	# The idea is stolen from https://stackoverflow.com/a/50059607
+	# Since .gitignore is not fully compatible with rsync, so the idea is to list all ignored files using git command, and then feed them into rsync
+
+	# Get remote ignored files, so that when doing rsync those files are not deleted
+	ssh tony@192.168.162.118 "git -C ~/workspace/flutter/clear_money ls-files --exclude-standard -oi --directory" > ignores.tmp
+
+	# Get local ignored files
+	git -C /home/tony/c/git/flutter/clear_money ls-files --exclude-standard -oi --directory >> ignores.tmp
+
+	# Do sync
+	rsync -ahP --delete \
+	    --exclude .git --exclude-from="ignores.tmp" \
+	    /home/tony/c/git/flutter/clear_money/ tony@192.168.162.118:~/workspace/flutter/clear_money
+}
+
+echo "Doing initial sync..."
+doSync
+echo "Finished initial sync"
+while inotifywait -r -e modify,create,delete,move /home/tony/c/git/flutter/clear_money; do	
+	echo "Changes detected, doing sync..."
+	doSync
+	echo "Sync finished"
+done
+```
+
 
 
 # Options
