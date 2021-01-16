@@ -7,6 +7,8 @@ All shortcuts are based on intelliJ's built-in eclipse keymap
 - Find Action: `Ctrl+Shift+P`
 - Next Highlighted Error: `Ctrl+,`
 - Previous Highlighted Error: `Ctrl+Shift+,`
+- Add Selection for Next Occurrence: `Ctrl+D`
+- Select All Occurrences: `Alt+F3`
 
 ### Useful Shortcuts
 

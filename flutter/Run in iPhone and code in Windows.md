@@ -108,6 +108,9 @@
 # Preparations before starting development
 
 - Start up the sync shell
+  - Open terminal
+  - Run bash to open built-in linux terminal
+  - ~/c/tmp/sync.sh
 - Connect iPhone to Mac
 - `flutter run`
 
@@ -116,12 +119,6 @@
 1. Git clone the repo from remote to a temp folder. This copy should only contain not-ignored files
 2. Remove .gitignore and create a commit
 3. Do rsync from workspace to this temp repo. If there is any diff, then there is bug
-
-
-
-
-
-
 
 
 
