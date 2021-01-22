@@ -1,3 +1,5 @@
+# References
+
 - [Layouts in Flutter - Flutter](https://flutter.dev/docs/development/ui/layout)
 
 # Widget
@@ -192,13 +194,6 @@ return DefaultTextStyle.merge(
 )
 ```
 
-# Card widget
-
-Create a material design style card-like thing:
-
-- Silver border
-- Make it looks as if a card with thickness
-
 # Standard vs Material Widgets
 
 - Standard widgets from the [widgets library](https://api.flutter.dev/flutter/widgets/widgets-library.html)
@@ -232,27 +227,92 @@ Container(
 
 ![Diagram showing: margin, border, padding, and content](C:\git\study\images\margin-padding-border-9616dd0d7af45b95e6fcface25cd933b6b4a0fda51c1ab1bb9287bc8ed92c356.png)
 
+## [GridView](https://flutter.dev/docs/development/ui/layout#gridview)
+
+- Creates a grid
+- It would automatically scroll if content overflows
+- Main direction is scroll direction
+- There are two built-in constructors:
+  - `GridView.count`: Specify number of columns
+  - `GridView.extent`: Specify maximum pixel with of a tile
+
+```dart
+Widget _buildGrid() => GridView.extent(
+    maxCrossAxisExtent: 150,
+    padding: const EdgeInsets.all(4),
+    mainAxisSpacing: 4,
+    crossAxisSpacing: 4,
+    children: _buildGridTileList(30));
+
+// The images are saved with names pic0.jpg, pic1.jpg...pic29.jpg.
+// The List.generate() constructor allows an easy way to create
+// a list when objects have a predictable naming pattern.
+List<Container> _buildGridTileList(int count) => List.generate(
+    count, (i) => Container(child: Image.asset('images/pic$i.jpg')));
+```
+
+## ListView
+
+- A speicialized Column widget
+- Can be laied out horizontally or vertically
+- Scrollable
+- Less configurable than Column but easier to use
+
+![ListView containing movie theaters and restaurants](C:\git\study\images\listview-34918a738b5d18af88d16a8773e563a3b97f2ffd2710304c5543f8541cbd1345.png)
 
 
 
+## Stack
 
+- Make one widget be able to overlap another
+- Its children property lists all overlapped components. Latter ones would cover earlier ones
+- You can choose to clip children that exceed the render box
 
+![Circular avatar image with a label](C:\git\study\images\stack-8b743fe7d0f5fe7e58e3a257572f4b48b1552194f7e3f3ffa15a87edaf99a749.png)
 
+```dart
+Widget _buildStack() => Stack(
+    alignment: const Alignment(0.6, 0.6),
+    children: [
+      CircleAvatar(
+        backgroundImage: AssetImage('images/pic.jpg'),
+        radius: 100,
+      ),
+      Container(
+        decoration: BoxDecoration(
+          color: Colors.black45,
+        ),
+        child: Text(
+          'Mia B',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    ],
+  );
 
+```
 
+# Material Widget
 
+## Card widget
 
+Create a material design style card-like thing:
 
+- Drop shadow around the widget, rounded corners
+- Not scrollable
+- Make it looks as if a card with thickness
 
+![Card containing 3 ListTiles](C:\git\study\flutter\images\card-3db18421d33c96f34f8d19889a5f28c61287063a62c9770f311fd56aeff0b364.png)![Card containing an image, text and buttons](C:\git\study\flutter\images\card-flutter-gallery-184963eb23d8824ef3df612a6b40205ed113e7c00da98fa22228cc6e6f619d88.png)
 
+## ListTile Widget
 
+- A specialized row  that contains up to 3 lines of text and optional icons
+- Less configurable than Row, but easier to use
 
+![Card containing 3 ListTiles](C:\git\study\flutter\images\card-3db18421d33c96f34f8d19889a5f28c61287063a62c9770f311fd56aeff0b364.png)
 
-
-
-
-
-
-
-
-
+Each line is a `ListTile`

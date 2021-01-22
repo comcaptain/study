@@ -204,6 +204,7 @@ void main() {
 - If default value of named parameter is not specified, then default value would be null
 - `int` can also be null
 - Named parameter and normal parameter can be mixed, but named parameters should always come after all normal parameters. i.e. `Rectangle1(this.width, {this.origin = const Point(0, 0)}, this.height);` is not allowed
+- Default value must be comple-time constant (`const` keyword is to guarantee this). Compile time constant means its value is determined when it's compiled
 
 ## Abstract class & interface
 
