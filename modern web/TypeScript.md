@@ -1,3 +1,11 @@
+# Guide for the impatient
+
+references:
+
+- [TypeScript: Documentation - TypeScript for JavaScript Programmers (typescriptlang.org)](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html)
+
+# Detail
+
 ## Basic Types
 
 ### Boolean
