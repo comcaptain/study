@@ -4,6 +4,133 @@ references:
 
 - [TypeScript: Documentation - TypeScript for JavaScript Programmers (typescriptlang.org)](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html)
 
+## Add type to everywhere
+
+```typescript
+class Calculator {
+	num1: number;
+	num2: number;
+
+	constructor(num1: number, num2: number) {
+		this.num1 = num1;
+		this.num2 = num2;
+	}
+
+	sum(): string {
+		return `${this.num1} + ${this.num2} = ${this.num1 + this.num2}`
+	}
+}
+```
+
+## Duck Typing
+
+*If it walks like a duck and it quacks like a duck, then it must be a duck*
+
+```typescript
+interface Point {
+	x: number;
+	y: number;
+}
+
+class MyPoint {
+	x: number;
+	y: number;
+
+	constructor(x: number, y: number) {
+		this.x = x;
+		this.y = y;
+	}
+}
+
+function showPoint(point: Point): string {
+	return `(${point.x}, ${point.y})`;
+}
+
+// MyPoint didn't implement interface Point, but since properties are the same, so they are treated as same type
+console.info(showPoint(new MyPoint(3, 4)));
+// You can even use a plain object
+console.info(showPoint({ x: 5, y: 6 }));
+// Extra properties is also fine
+const rect = { x: 33, y: 3, width: 30, height: 80 };
+console.info(showPoint(rect));
+```
+
+## Inheritance
+
+```typescript
+interface Point {
+	x: number;
+	y: number;
+
+	display(): string;
+}
+
+class MyPoint implements Point {
+	x: number;
+	y: number;
+
+	constructor(x: number, y: number) {
+		this.x = x;
+		this.y = y;
+	}
+
+	display(): string {
+		return `My point: ${this.x}, ${this.y}`;
+	}
+}
+
+class GrandChildPoint extends MyPoint {
+
+	constructor(x: number, y: number) {
+		super(x, y);
+	}
+
+	display(): string {
+		return super.display() + ": from grandchild";
+	}
+}
+
+console.info(new GrandChildPoint(3, 4).display())
+```
+
+## Generics
+
+```typescript
+// If there is a non-number element in the array, compiler error would be reported
+const nums: Array<number> = [1, 2, 3];
+```
+
+```typescript
+class FixedSizeList<T> {
+	private values: Array<T>;
+	capacity: number;
+
+	constructor(capacity: number) {
+		this.values = []
+		this.capacity = capacity;
+	}
+
+	add(value: T): boolean {
+		if (this.values.length >= this.capacity) return false;
+		this.values.push(value);
+		return true;
+	}
+
+	get(index: number): T {
+		return this.values[index];
+	}
+
+	size(): number {
+		return this.values.length;
+	}
+}
+const list = new FixedSizeList(3);
+for (let i = 0; i < 5; i++) console.info(list.add(i)); // 3 true, 2 false
+for (let i = 0; i < list.size(); i++) console.info(list.get(i));// 0, 1, 2
+```
+
+
+
 # Detail
 
 ## Basic Types
@@ -64,14 +191,14 @@ x[6] = true; // Error, 'boolean' isn't 'string | number'
 ### Enum
 
 ```
-enum Color {Red, Green, Blue}
-let c: Color = Color.Green;
+enum RGB { RED, GREEN, BLUE }
+console.info(`Red: ${RGB.RED}`); // output is 0
 
-enum Color {Red = 1, Green, Blue}
-enum Color {Red = 1, Green = 5, Blue = 7}
+enum RGB2 { RED = 3, GREEN, BLUE }
+console.info(`Blue: ${RGB2.BLUE}`); // output is 5
 
-let colorName: string = Color[2];
-alert(colorName);
+enum RGB3 { RED = "Red", GREEN = "Green", BLUE = "Blue" }
+console.info(`Green: ${RGB3.GREEN}`); // output is Green
 ```
 
 ### Any
