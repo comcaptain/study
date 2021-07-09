@@ -38,3 +38,28 @@ npm install node-sass --save
 ```
 
 Then rename all css to scss and update references in tsx files
+
+## React App Folder Structure
+
+```
+my-app/
+  README.md
+  node_modules/
+  package.json
+  public/
+    index.html
+    favicon.ico
+  src/
+    App.css
+    App.js
+    App.test.js
+    index.css
+    index.js
+    logo.svg
+```
+
+- `public`
+  - Only files inside this folder can be referenced by `public/index.html`
+- `src`
+  - webpack would only preprocess files inside this directory
+  - so all scss/ts/tsx files would be stored here
