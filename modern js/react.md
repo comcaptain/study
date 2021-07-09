@@ -28,3 +28,13 @@ This would build do the compilation and output to `/build` folder
 - All html/js/css files would be compressed and added hash suffix
 - Entry point is index.html
 - You can start a http server in index.html to verify
+
+## Add support for scss
+
+[Adding a Sass Stylesheet | Create React App (create-react-app.dev)](https://create-react-app.dev/docs/adding-a-sass-stylesheet/)
+
+```bash
+npm install node-sass --save
+```
+
+Then rename all css to scss and update references in tsx files
