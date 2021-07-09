@@ -11,3 +11,9 @@
 ffmpeg -ss 01:50.506 -to 30:51.182 -i "input.mp4" -c copy "output.mp4"
 ```
 
+### MP4中抽取MP3
+
+```bash
+ffmpeg -i filename.mp4 filename.mp3
+```
+
