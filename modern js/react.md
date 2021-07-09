@@ -1,3 +1,5 @@
+# Boilerplate
+
 ## Basic commands
 
 ### Create a react react project
@@ -38,6 +40,29 @@ npm install node-sass --save
 ```
 
 Then rename all css to scss and update references in tsx files
+
+## Make build target support IE11
+
+### How to
+
+```bash
+npm install react-app-polyfill
+```
+
+Then add following line as **first line** of index.tsx
+
+```typescript
+import 'react-app-polyfill/ie11';
+```
+
+### Verification
+
+Verify whether following features work in IE11:
+
+- [x] Async/await
+- [x] `2 ** 3`
+- [x] `let { x, y, ...z } = { x: 1, y: 2, a: 3, b: 4 }`
+- [x] `let n = { x, y, ...z }`
 
 ## React App Folder Structure
 
