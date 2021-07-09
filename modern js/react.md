@@ -88,3 +88,36 @@ my-app/
 - `src`
   - webpack would only preprocess files inside this directory
   - so all scss/ts/tsx files would be stored here
+
+# VS code setup
+
+https://create-react-app.dev/docs/setting-up-your-editor#visual-studio-code
+
+## Debug in VS code
+
+1. Install plugin [Chrome Debugger Extension](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome)
+
+2. Create `.vscode` directory in your app root folder
+
+3. Create `launch.json` inside `.vscode` directory. And its content is:
+
+   ```json
+   {
+     "version": "0.2.0",
+     "configurations": [
+       {
+         "name": "Chrome",
+         "type": "chrome",
+         "request": "launch",
+         "url": "http://localhost:3000",
+         "webRoot": "${workspaceFolder}/src",
+         "sourceMapPathOverrides": {
+           "webpack:///src/*": "${webRoot}/*"
+         }
+       }
+     ]
+   }
+   ```
+
+4. Press F5 to open a new Chrome tab. Happy debugging :stuck_out_tongue_winking_eye:
+
