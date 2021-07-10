@@ -353,3 +353,53 @@ componentDidMount() {
 }
 ```
 
+## Event Handling
+
+### Button Click Demo
+
+```tsx
+class ButtonDemo extends React.Component {
+
+	clicked = (e: MouseEvent<HTMLButtonElement>) => {
+		alert(`Clicked button ${e.currentTarget.textContent}`)
+	}
+
+	render() {
+		return <button onClick={this.clicked}>Click Me</button>
+	}
+}
+```
+
+- Event type
+  - All events in ReactJS is are children of `SyntheticEvent`
+  - React defines `SyntheticEvent` according to W3C spec. So we can refer to MDN doc
+- Why did I use `currentTarget` rather than `target`
+  - Because `currentTarget` points to the element that binds the listener while `target` points to the element that triggers the event
+  - So type of `target`  might not be the 
+- clicked function
+  - The function is defined in a way called [public class fields syntax](https://babeljs.io/docs/plugins/transform-class-properties/)
+  - If we define it in normal way, then inside the function, value of `this` would be undefined
+  - If you insist on using traditional function-declaration way, there are 2 workarounds for it:
+    - Option1: In constructor, add `this.clicked = this.clicked.bind(this);`
+    - Option 2: Bind this in `onClick` like this: `<button onClick={this.clicked.bind(this)}>Click Me2</button>`
+
+### DOM node type hierarchy
+
+```
+Element
+   |
+   |------ HTMLElement
+              |
+              |------ HTMLButtonElement
+              |
+              |------ HTMLSelectElement
+   
+```
+
+### Pass parameter into listener
+
+```tsx
+<button onClick={(e) => this.deleteRow(id, e)}>Delete Row</button>
+<button onClick={this.deleteRow.bind(this, id)}>Delete Row</button>
+```
+
