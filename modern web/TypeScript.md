@@ -129,7 +129,31 @@ for (let i = 0; i < 5; i++) console.info(list.add(i)); // 3 true, 2 false
 for (let i = 0; i < list.size(); i++) console.info(list.get(i));// 0, 1, 2
 ```
 
+## Union Type
 
+```typescript
+// id's type can be either number or string
+function printID(id: number | string): void {
+	console.info(`ID is ${id}`)
+}
+printID(1)
+printID("32")
+```
+
+## Type Alias
+
+Give type an alias
+
+```typescript
+// This is very similar to interface
+type Point = {
+  x: number;
+  y: number;
+};
+type ID = number | string
+```
+
+The aliases can be used in the same way as interface
 
 # Detail
 
