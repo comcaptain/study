@@ -155,6 +155,21 @@ type ID = number | string
 
 The aliases can be used in the same way as interface
 
+## Object Type
+
+With this, you can declare a type on the fly
+
+```typescript
+// note is optional property
+function printPoint(point: { x: number, y: number, note?: string }) {
+	console.info(`${point.note ? point.note + ": " : ""}(${point.x}, ${point.y})`);
+}
+printPoint({ x: 3, y: 4 }); // (3, 4)
+printPoint({ x: 3, y: 4, note: "Special point" }); // Special point: (3, 4)
+```
+
+
+
 # Detail
 
 ## Basic Types
