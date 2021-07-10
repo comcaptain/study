@@ -9,7 +9,7 @@ references:
 ```typescript
 class Calculator {
 	num1: number;
-	num2: number;
+	readonly num2: number; // readonly is same as final in java
 
 	constructor(num1: number, num2: number) {
 		this.num1 = num1;
@@ -35,6 +35,8 @@ interface Point {
 class MyPoint {
 	x: number;
 	y: number;
+    // This is an optional type
+    note?: string;
 
 	constructor(x: number, y: number) {
 		this.x = x;
