@@ -173,13 +173,34 @@ const element = (
 );
 ```
 
-is would be compiled to following statement by babel:
+would be compiled to following statement by babel:
 
 ```tsx
 const element = React.createElement(
   'h1',
   {className: 'greeting'},
   'Hello, world!'
+);
+```
+
+## React Element
+
+### What is it
+
+Each template is a react element. It's similar to DOM node in plain html. But there are following differences:
+
+- It's a plain js object. So unlike HTML DOM node, it's very cheap to create
+- It's **immutable**
+
+### How to render it?
+
+Use `ReactDOM.render` like below:
+
+```tsx
+ReactDOM.render(
+  <h1>Hello, world!</h1>, // React Element
+  // The DOM node inside which the h1 above would be rendered
+  document.getElementById('root')
 );
 ```
 
