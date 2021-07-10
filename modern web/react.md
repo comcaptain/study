@@ -256,3 +256,100 @@ const element = <Welcome name="Sara" />;
 ### Properties is immutable
 
 Components should **never** modify properties value
+
+## State and Lifecycle
+
+### A running clock
+
+```ts
+// Second generic type is for state
+class Clock extends React.Component<{}, { currentTime: Date }> {
+	// An optional property
+	timerID?: NodeJS.Timeout;
+
+	constructor(props: {}) {
+		super(props);
+        // Set initial state. Unlike properties, state is mutable
+		this.state = { currentTime: new Date() };
+		console.info("Step 1")
+	}
+
+    // Overridden method, this would be invoked immediately after this component is mounted 
+	componentDidMount() {
+        // NOTE: You should invoke setState to notify React that state is changed
+        // this.state.currentTime = new Date() would not work
+		this.timerID = setInterval(() => this.setState({ currentTime: new Date() }), 1000);
+		console.info("Step 3")
+	}
+
+    // Overridden mothod, this would be called immediately before this component is destroyed
+    // So we can do some cleanup work here
+	componentWillUnmount() {
+		console.info("Step 5")
+		if (this.timerID) clearInterval(this.timerID)
+	}
+
+	render() {
+		console.info(`Step ${this.timerID ? 4 : 2}`)
+        // Use state rather than properties
+		return <p>{this.state.currentTime.toLocaleTimeString()}</p>;
+	}
+}
+```
+
+### Using State Correctly
+
+#### Do Not Modify State Directly
+
+```ts
+// Wrong
+this.state.comment = 'Hello';
+// Correct
+this.setState({comment: 'Hello'});
+```
+
+#### setState is asynchronous
+
+After `setState` is executed, the state may not have been updated. So following code is wrong:
+
+```tsx
+// Wrong
+this.setState({
+  counter: this.state.counter + this.props.increment,
+});
+```
+
+You can fix it like this:
+
+```tsx
+// Correct
+this.setState((state, props) => ({
+  counter: state.counter + props.increment
+}));
+```
+
+#### Only need to update changed state property
+
+```tsx
+constructor(props) {
+    super(props);
+    this.state = {
+        posts: [],
+        comments: []
+    };
+}
+componentDidMount() {
+    fetchPosts().then(response => {
+        this.setState({
+            posts: response.posts // You do not have to add comments property here because it's not changed
+        });
+    });
+
+    fetchComments().then(response => {
+        this.setState({
+            comments: response.comments // You do not have to add comments property here because it's not changed
+        });
+    });
+}
+```
+
