@@ -419,3 +419,18 @@ Element
 <button onClick={this.deleteRow.bind(this, id)}>Delete Row</button>
 ```
 
+## `key` in list
+
+```tsx
+function ToDos(props: { todos: Array<{ name: string, id: number }> }) {
+	return (
+		<ul>
+			{props.todos.map(todo =>
+				// By specifiying key, react can efficiently update changed elements only
+				<li key={todo.id}>{todo.name}</li>
+			)}
+		</ul>
+	)
+}
+```
+
