@@ -121,3 +121,65 @@ https://create-react-app.dev/docs/setting-up-your-editor#visual-studio-code
 
 4. Press F5 to open a new Chrome tab. Happy debugging :stuck_out_tongue_winking_eye:
 
+# Main Concepts
+
+[Hello World – React (reactjs.org)](https://reactjs.org/docs/hello-world.html)
+
+## Hello World
+
+```tsx
+ReactDOM.render(
+  <h1>Hello, world!</h1>,
+  // The DOM node inside which the h1 above would be rendered
+  document.getElementById('root')
+);
+```
+
+## JSX/TSX
+
+### Declare tsx template variable
+
+```tsx
+const element = <h1>Hello, {name}</h1>;
+// When putting tempalte into multiple lines, surround it with ()
+const element2 = (
+  <h1>
+    Hello, {formatName(user)}!
+  </h1>
+);
+```
+
+### Run ts code in tsx template
+
+```tsx
+function sum(num1: number, num2: number): string {
+	return `${num1} + ${num2} = ${num1 + num2}`;
+}
+ReactDOM.render(
+  <p>{sum(2, 3)}</p>,
+  document.getElementById('root')
+);
+```
+
+**NOTE:** Result of expression inside `{}` would be escaped. So you do no need to worry about code injection
+
+### TSX template would be compiled to...
+
+```tsx
+const element = (
+  <h1 className="greeting">
+    Hello, world!
+  </h1>
+);
+```
+
+is would be compiled to following statement by babel:
+
+```tsx
+const element = React.createElement(
+  'h1',
+  {className: 'greeting'},
+  'Hello, world!'
+);
+```
+
