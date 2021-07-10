@@ -246,6 +246,22 @@ class Welcome extends React.Component<{ name: string }> {
 }
 ```
 
+### Conditionally do not render the component itself
+
+```tsx
+function WarningBanner(props: { warningText?: string }) {
+	if (!props.warningText) {
+		return null; // Returnning null would not render the component
+	}
+
+	return (
+		<div className="warning">{props.warningText}</div>
+	);
+}
+```
+
+
+
 ### Render a component
 
 ```tsx
