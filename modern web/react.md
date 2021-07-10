@@ -123,6 +123,8 @@ https://create-react-app.dev/docs/setting-up-your-editor#visual-studio-code
 
 # Main Concepts
 
+[TypeScript: Documentation - JSX (typescriptlang.org)](https://www.typescriptlang.org/docs/handbook/jsx.html)
+
 [Hello World – React (reactjs.org)](https://reactjs.org/docs/hello-world.html)
 
 ## Hello World
@@ -191,6 +193,7 @@ Each template is a react element. It's similar to DOM node in plain html. But th
 
 - It's a plain js object. So unlike HTML DOM node, it's very cheap to create
 - It's **immutable**
+- Its type is `JSX.Element` in typescript
 
 ### How to render it?
 
@@ -204,3 +207,52 @@ ReactDOM.render(
 );
 ```
 
+## Components and properties
+
+- A component is an isolated collection of css, js and html
+- It's a class that extends `React.Component`
+
+### Define a component
+
+- There are 2 ways to declare components: function & class
+- They are identical and there is no way to distinguish whether a component is declared via function or class
+- All components' first character must be **capitalized**. This is to differentiate from html tags like `div`
+- **It's encoraged to create small component**
+
+#### Function Components
+
+```tsx
+// The 1st parameter should always be props, an object-typed parameter
+// And its return type should be JSX.Element
+function Welcome(props: { name: string }): JSX.Element {
+	return <p>Welcome {props.name}</p>
+}
+// parameter name does not have props and type can also be any type, like an interface
+interface User {
+	name: string
+}
+function Welcome2(user: User): JSX.Element {
+	return <p>Welcome {user.name}</p>
+}
+```
+
+#### Class Components
+
+```tsx
+class Welcome extends React.Component<{ name: string }> {
+	render() {
+		return <h1>Hello, {this.props.name}</h1>;
+	}
+}
+```
+
+### Render a component
+
+```tsx
+// Attributes would be converted to properties attribute and passed to constructor/function of component
+const element = <Welcome name="Sara" />;
+```
+
+### Properties is immutable
+
+Components should **never** modify properties value
