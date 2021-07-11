@@ -434,3 +434,79 @@ function ToDos(props: { todos: Array<{ name: string, id: number }> }) {
 }
 ```
 
+## SCSS in component
+
+There a `QButton` component example:
+
+```tsx
+import React, { MouseEventHandler } from "react";
+import './QButton.scss'
+
+type QButtonProps = {
+	children: string,
+	onClick?: MouseEventHandler<HTMLButtonElement>
+}
+
+class QButton extends React.Component<QButtonProps> {
+
+	constructor(props: QButtonProps) {
+		super(props);
+	}
+
+	render() {
+		return <button className="q-button" onClick={this.props.onClick}>{this.props.children}</button>
+	}
+}
+
+export default QButton
+```
+
+```scss
+.q-button {
+	height: 30px;
+	padding-left: 10px;
+	padding-right: 10px;
+	border-radius: 3px;
+	border: 1px solid silver;
+
+	&:active {
+		position: relative;
+		top: 1px;
+	}
+}
+```
+
+- You can use `QButton` component multiple times on the screen, the scss file would not be referenced multiple times
+- In fact, when compiling, all scss files would be compiled into a big one. So you can create as many scss files are you like and there is no need to worry about performan
+
+## Form
+
+### Why can't I change input value?
+
+```tsx
+function FormDemo(props: {}) {
+	return <input type="text" value="abc" />
+}
+```
+
+This looks like a normal input node whose initial value is "abc". But you'll find that:
+
+- It's editable on the screen
+- But whenever you change its value, it automatically restores to "abc"
+
+The reason is:
+
+- React would render the DOM node in exactly the same way as you told it
+- So if you tell react that the input box's value is abc, then its value would always be abc. Even user cannot change it
+
+You can fix it by using `defaultValue` attribute instead of `value` attribute:
+
+```tsx
+function FormDemo(props: {}) {
+	return <input type="text" defaultValue="abc" />
+}
+```
+
+Now you have changed the input node from **controlled**  to **uncontrolled**
+
+### Controlled Components
