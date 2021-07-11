@@ -753,3 +753,105 @@ function TestComponent() {
 }
 ```
 
+### Lazy Loaded Component should ONLY export default component
+
+If in lazy loaded file, multiple components are exported. Then other exported components would also be loaded. You can check [this](https://stackoverflow.com/a/62862177/2334320) for more detail
+
+## Routing
+
+This is done via [React Router](https://reactrouter.com/web)
+
+### Install
+
+```bash
+npm install react-router-dom
+# This is for typescript
+npm i --save-dev @types/react-router-dom
+```
+
+### Basic Routing with lazy loading
+
+```tsx
+import './App.scss';
+import { lazy, Suspense } from 'react';
+import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom';
+
+const Home = lazy(() => import('./Home'));
+const About = lazy(() => import('./About'));
+const Demo = lazy(() => import('./Demo'));
+
+function App() {
+	return (
+		<div className="App">
+			<Router>
+				<ul>
+					<li>
+						<Link to="/">Home</Link>
+					</li>
+					<li>
+						<Link to="/about">About</Link>
+					</li>
+					<li>
+						<Link to="/demo">Demo</Link>
+					</li>
+				</ul>
+				<Suspense fallback={<div>Loading...</div>}>
+					<Switch>
+						<Route exact path="/" component={Home} />
+						<Route path="/about" component={About} />
+						<Route path="/demo" component={Demo} />
+					</Switch>
+				</Suspense>
+			</Router>
+		</div>
+	);
+}
+
+export default App;
+```
+
+- `Router` tag is a wrapper. All routing related tags should be in it. e.g. `Link` tag
+- `<Switch>` & `<Route>`
+  - Only if current url matches the path specified in `Route`, the Route's component would be rendered
+  - `exact` is added to the first path. Because without it, all other paths like `/about` would be matched by it
+- Because of the usage of lazy loading:
+  - Home/About/Demo would only be loaded when the url navigates to it
+  - This would also cause code split. i.e. Home/About/Demo components would not be bundled into the main js file. Instead, they would all have separate JS files
+
+But if you intends to load Home/About/Demo in one shot when the main page opens, you can:
+
+```tsx
+import './App.scss';
+import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom';
+import Home from './Home';
+import About from './About';
+import Demo from './Demo';
+
+function App() {
+	return (
+		<div className="App">
+			<Router>
+				<ul>
+					<li>
+						<Link to="/">Home</Link>
+					</li>
+					<li>
+						<Link to="/about">About</Link>
+					</li>
+					<li>
+						<Link to="/demo">Demo</Link>
+					</li>
+				</ul>
+				<Switch>
+					<Route exact path="/" component={Home} />
+					<Route path="/about" component={About} />
+					<Route path="/demo" component={Demo} />
+				</Switch>
+			</Router>
+		</div>
+	);
+}
+
+export default App;
+```
+
