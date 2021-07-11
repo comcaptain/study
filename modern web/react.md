@@ -514,3 +514,195 @@ function FormDemo(props: {}) {
 Now you have changed the input node from **controlled**  to **uncontrolled**
 
 ### Controlled Components
+
+Make component state single source of truth:
+
+- Form nodes' value comes from state
+- When nodes' value changes, update state accordingly
+
+#### Checkbox example
+
+```tsx
+import React, { ChangeEvent } from "react";
+
+type QCheckboxProps = {
+	name: string,
+	label: string,
+	value: string,
+	checkedValues: readonly string[],
+	onChange: (event: ChangeEvent<HTMLInputElement>, newCheckedValues: readonly string[]) => void
+}
+
+function QCheckbox(props: QCheckboxProps) {
+
+	function onChange(event: ChangeEvent<HTMLInputElement>) {
+		let newCheckedValues;
+		if (event.target.checked) {
+			newCheckedValues = [...props.checkedValues, props.value]
+		}
+		else {
+			newCheckedValues = props.checkedValues.filter(v => props.value !== v)
+		}
+		props.onChange(event, newCheckedValues);
+	}
+
+	return (
+		<label>{props.label}<input type="checkbox"
+			name={props.name}
+			value={props.value}
+			checked={props.checkedValues.includes(props.value)}
+			onChange={onChange}
+		/></label>
+	)
+}
+
+export default QCheckbox
+```
+
+#### Form with various fields example
+
+```tsx
+
+import React, { ChangeEvent, FormEvent } from 'react';
+import './FormDemo.scss'
+import QSubmitButton from './QSubmitButton';
+import QCheckbox from './QCheckbox';
+
+type FormData = {
+	input?: string,
+	numericInput?: number,
+	select?: string,
+	multiSelect?: readonly string[], // This has to be a immutable array, otherwise multiple select tag would not accept it as value
+	checkboxes: readonly string[],
+	radiobox: string,
+	textarea: string
+}
+
+function FormRow(props: { children: Array<JSX.Element> | JSX.Element }) {
+	return <div className="form-row">{props.children}</div>
+}
+
+class ControlledFormDemo extends React.Component<FormData, FormData> {
+
+	constructor(props: FormData) {
+		super(props)
+		this.state = { ...props };
+		this.onChange = this.onChange.bind(this);
+	}
+
+	onChange(event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>, newValue?: any) {
+		const target = event.currentTarget as any;
+		let value;
+		if (newValue) {
+			value = newValue;
+		}
+		else if (target.multiple) {
+			value = [];
+			const options = (target as HTMLSelectElement).options;
+			for (let i = 0; i < options.length; i++) {
+				const option = options[i];
+				option.selected && value.push(option.value);
+			}
+		}
+		else {
+			value = target.value
+		}
+		this.setState({
+			[target.name]: value
+		} as any);
+	}
+
+	onSubmit = (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		console.info(this.state)
+	}
+
+	render() {
+		return (
+			<form onSubmit={this.onSubmit}>
+				<FormRow>
+					<input type="text" name="input" value={this.state.input} onChange={this.onChange} />
+					<input name="numericInput" type="number" value={this.state.numericInput} onChange={this.onChange} />
+				</FormRow>
+				<FormRow>
+					<select name="select" value={this.state.select} onChange={this.onChange}>
+						<option value="a">a</option>
+						<option value="b">b</option>
+						<option value="c">c</option>
+					</select>
+					<select multiple={true} name="multiSelect" value={this.state.multiSelect} onChange={this.onChange}>
+						<option value="a">a</option>
+						<option value="b">b</option>
+						<option value="c">c</option>
+						<option value="d">d</option>
+						<option value="e">e</option>
+						<option value="f">f</option>
+					</select>
+				</FormRow>
+				<FormRow>
+					<QCheckbox name="checkboxes" value="a" label="a: " checkedValues={this.state.checkboxes} onChange={this.onChange} />
+					<QCheckbox name="checkboxes" value="b" label="b: " checkedValues={this.state.checkboxes} onChange={this.onChange} />
+					<QCheckbox name="checkboxes" value="c" label="c: " checkedValues={this.state.checkboxes} onChange={this.onChange} />
+				</FormRow>
+				<FormRow>
+					<label>1: <input type="radio" name="radiobox" checked={this.state.radiobox === "radio1"} onChange={this.onChange} value="radio1" /></label>
+					<label>2: <input type="radio" name="radiobox" checked={this.state.radiobox === "radio2"} onChange={this.onChange} value="radio2" /></label>
+					<label>3: <input type="radio" name="radiobox" checked={this.state.radiobox === "radio3"} onChange={this.onChange} value="radio3" /></label>
+				</FormRow>
+				<FormRow>
+					<textarea name="textarea" onChange={this.onChange}>{this.state.textarea}</textarea>
+				</FormRow>
+				<QSubmitButton>Submit Me</QSubmitButton>
+			</form>
+		)
+	}
+}
+
+export default ControlledFormDemo
+```
+
+#### Use [formik](https://formik.org/)
+
+- Frankly speaking, it's not very easy to use controlled component. Especailly for some special ones like checkbox
+- [formik](https://formik.org/) would do those verbose things for you. e.g.
+  - It provides implementation of `onChange`  for all kinds of form fields
+  - It provides convenient API to do form validation
+
+### Uncontrolled component
+
+- `<input type="file" />` is born to be uncontrolled because it's readonly
+- DOM node value is single source of truth. State would not keep form nodes' latest value
+- You can access DOM node directly like vanilla js
+
+```tsx
+class FormDemo extends React.Component {
+
+	input: React.RefObject<HTMLInputElement>;
+
+	constructor(props: {}) {
+		super(props);
+		this.input = React.createRef();
+	}
+
+	onChange = (event: ChangeEvent<HTMLInputElement>) => {
+		this.setState({
+			value: event.currentTarget.value
+		})
+	}
+
+	onSubmit = (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		console.info(this.input.current?.value)
+	}
+
+	render() {
+		return (
+			<form onSubmit={this.onSubmit}>
+				<input type="text" defaultValue="freedom" ref={this.input} />
+				<input type="submit" />
+			</form>
+		)
+	}
+}
+```
+
