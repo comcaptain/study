@@ -315,7 +315,7 @@ class Clock extends React.Component<{}, { currentTime: Date }> {
 
 ### Using State Correctly
 
-#### Do Not Modify State Directly
+#### Treat `this.state` as if it were immutable
 
 ```ts
 // Wrong
@@ -323,6 +323,10 @@ this.state.comment = 'Hello';
 // Correct
 this.setState({comment: 'Hello'});
 ```
+
+According to [this doc](https://reactjs.org/docs/react-component.html#setstate):
+
+> Never mutate this.state directly, as calling setState() afterwards may replace the mutation you made. **Treat this.state as if it were immutable**.
 
 #### setState is asynchronous
 
@@ -477,7 +481,7 @@ export default QButton
 ```
 
 - You can use `QButton` component multiple times on the screen, the scss file would not be referenced multiple times
-- In fact, when compiling, all scss files would be compiled into a big one. So you can create as many scss files are you like and there is no need to worry about performan
+- In fact, when compiling, all scss files would be compiled into a big one. So you can create as many scss files are you like and there is no need to worry about performance
 
 ## Form
 
