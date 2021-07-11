@@ -706,3 +706,50 @@ class FormDemo extends React.Component {
 }
 ```
 
+# Advanced Concepts
+
+## Load component lazily
+
+### Real world example
+
+- In order list screen, when we select an order, order detail screen would popup
+- In this case, we can lazily load order detail component
+
+### What's behind it
+
+Behind it is dynamic import, which is similar to requirejs, except it `import` method would return a promise
+
+**math.ts**
+
+```typescript
+export function add(num1: number, num2: number): number {
+	return num1 + num2;
+}
+```
+
+**test.ts**
+
+```typescript
+async function test() {
+    // This would load math js file dynamically like requirejs
+    // So webpack would not package math.ts & test.ts into the same js file when compiling
+	const math = await import("./math");
+	console.info(math.add(1, 2))
+}
+
+test();
+```
+
+### How to
+
+```tsx
+const QButton = React.lazy(() => import('./QButton'));
+function TestComponent() {
+	return (
+		<Suspense fallback={<div>Loading....</div>}>
+			<QButton>Test</QButton>
+		</Suspense>
+	)
+}
+```
+

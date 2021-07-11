@@ -11,5 +11,7 @@
   - [ ] normal RESTful
 - [ ] ag-grid
 - [ ] Continue from [Developing Components in Isolation | Create React App (create-react-app.dev)](https://create-react-app.dev/docs/developing-components-in-isolation)
-- [ ] 
+- [ ] [Redux - A predictable state container for JavaScript apps. | Redux](https://redux.js.org/)
+- [x] [Formik: Build forms in React, without the tears](https://formik.org/)
+- [x] [Controlled and uncontrolled form inputs in React don't have to be complicated - Gosha Arinich (goshakkk.name)](https://goshakkk.name/controlled-vs-uncontrolled-inputs-react/)
 
