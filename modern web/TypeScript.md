@@ -170,6 +170,18 @@ printPoint({ x: 3, y: 4 }); // (3, 4)
 printPoint({ x: 3, y: 4, note: "Special point" }); // Special point: (3, 4)
 ```
 
+## Function Type
+
+```tsx
+type QCheckboxProps = {
+	name: string,
+	label: string,
+	value: string,
+	checkedValues: readonly string[],
+	onChange: (newCheckedValues: readonly string[], event: ChangeEvent<HTMLInputElement>) => void
+}
+```
+
 
 
 # Detail
