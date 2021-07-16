@@ -10,10 +10,86 @@
 
 ## [Load Conf Files](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#features.external-config)
 
+### Conf file priorities
+
+Check [this doc](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#features.external-config) for detail
+
 ### YAML conf file
 
 - It's chosen because it supports far more features than plain properties file
 - You can master it in 5 mintues by reading [Learn yaml in Y Minutes (learnxinyminutes.com)](https://learnxinyminutes.com/docs/yaml/)
+
+### Pass conf from command line
+
+```bash
+# Any parameter whose name starts with -- would be treated as conf
+# Following option would inject conf name=Spring
+# This conf has highest priority in non-testing environment
+java -jar app.jar --name="Spring"
+```
+
+### Conf file location
+
+- Default conf file name is `application.conf` / `application.yaml`
+
+- You can change conf file location in 2 ways:
+
+  - Set `spring.config.location`
+    - You should set this before system starts up
+  - Set `spring.config.import`
+    - You can set it in conf files
+
+- `spring.config.location` and `spring.config.import` share the same value format:
+
+  - Multiple paths should be seprated by comma
+    - For yaml, you can use sequence instead
+  - Each path can be directory path or file path. Direactory path must end with `/`
+  - Wildcard `*` is supported but can only be used on folder names, not on filename
+
+  ### Environment Specific Conf Design
+
+  File strucutre:
+
+  ```
+  conf/
+    mickey/
+      application.yaml
+      extra.yaml
+    tony/
+      application.yaml
+      extra.yaml
+      extra2.yaml
+    application.yaml
+  ```
+
+  Following argurments are added when system starts up:
+
+  ```
+  --spring.config.location=conf/ --environment=tony
+  ```
+
+  `application.yaml` loads environment-specific conf files like below:
+
+  ```yaml
+  spring:
+    config:
+      # Load environment-specific config
+      import: optional:./${environment}/
+  ```
+
+  `tony/application.yaml` imports `extra.yaml` and `extra2.yaml` like below:
+
+  ```yaml
+  spring:
+    config:
+      import:
+        # These 2 files are relevant to current directory
+        # So they would only load extra.yaml in current directory
+        - optional:extra.yaml
+        - optional:extra2.yaml
+  ```
+
+  Since imported conf files have higher priority, so environment-specific conf would override shared conf
 
 ## [Build & Deploy](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#deployment.containers)
 
