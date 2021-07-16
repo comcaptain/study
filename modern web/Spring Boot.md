@@ -8,6 +8,31 @@
   - Spring Reactive Web. Or you can call it Spring WebFlux
 - You can get a clear picture from [Spring Initializr](https://start.spring.io/)
 
+## [Load Conf Files](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#features.external-config)
+
+### YAML conf file
+
+- It's chosen because it supports far more features than plain properties file
+- You can master it in 5 mintues by reading [Learn yaml in Y Minutes (learnxinyminutes.com)](https://learnxinyminutes.com/docs/yaml/)
+
+## [Build & Deploy](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#deployment.containers)
+
+- **Build** 
+
+  - Run gradle task `bootJar`, then you can find the runnable jar in `build/libs` directory
+  - This task comes from gradle plugin `id 'org.springframework.boot' version '2.5.2'`
+
+- **Deploy**
+
+  - Just copy the built jar file to anywhere  you like and then use `java -jar` to run it
+
+  - Or, you can choose to unzip the jar file and then run. This would speed up the startup time a bit, but has no influence on runtime performance:
+
+    ```
+    jar -xf myapp.jar
+    java org.springframework.boot.loader.JarLauncher
+    ```
+
 ## [Developer Tools](https://docs.spring.io/spring-boot/docs/current/reference/html/using.html#using.devtools)
 
 ```groovy
