@@ -127,6 +127,26 @@ java -jar app.jar --name="Spring"
 
   4. Now you can inject this class like other spring-managed java beans
 
+## Log with log4j
+
+### [Dependency](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#howto.logging.log4j)
+
+- By default, spring uses logback
+- So if you used spring booter starter as dependency, you should replace `spring-boot-starter-logging` with `spring-bott-starter-log4j2`:
+
+```groovy
+implementation "org.springframework.boot:spring-boot-starter-log4j2"
+modules {
+    module("org.springframework.boot:spring-boot-starter-logging") {
+        replacedBy("org.springframework.boot:spring-boot-starter-log4j2", "Use Log4j2 instead of Logback")
+    }
+}
+```
+
+### Config & Use
+
+Set `logging.config` to log4j2 conf file path in `application.yaml`. Then you can use log4j2 in standard way
+
 ## [Build & Deploy](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#deployment.containers)
 
 - **Build** 
