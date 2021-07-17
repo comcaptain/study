@@ -91,6 +91,42 @@ java -jar app.jar --name="Spring"
 
   Since imported conf files have higher priority, so environment-specific conf would override shared conf
 
+  ### Load Conf as Java Bean
+
+  1. Add `@ConfigurationPropertiesScan` to main class
+
+     - By default, it would start scanning main class's residing package for all classes annotated with `@ConfigurationProperties`
+     - You can also use `@EnableConfigurationProperties` to enable specific classes
+
+  2. Make target conf names have same prefix:
+
+     ```yaml
+     test.bean:
+     	a: value1
+     	b: value2
+     ```
+
+  3. Then you can create a conf class:
+
+     ```java
+     // With this annotation you can inject conf values via constructor
+     @ConstructorBinding
+     @ConfigurationProperties("test.bean")
+     public final class HotKeyConfig
+     {
+     	public final String a;
+     	public final String b;
+     
+     	public HotKeyConfig(final String a; final String b)
+     	{
+     		this.a = a;
+     		this.b = b;
+     	}
+     
+     ```
+
+  4. Now you can inject this class like other spring-managed java beans
+
 ## [Build & Deploy](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#deployment.containers)
 
 - **Build** 
