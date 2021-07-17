@@ -156,7 +156,6 @@ Insert and find
 ```java
     @Bean
     public CommandLineRunner demo(CustomerRepository repository) {
-
         return (args) -> _demo(repository);
     }
 
