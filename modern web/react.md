@@ -1,8 +1,6 @@
 # Boilerplate
 
-## Basic commands
-
-### Create a react react project
+## Create a react react project
 
 ```bash
 # Create a react app called my-app
@@ -10,7 +8,7 @@ npx create-react-app my-app --template typescript
 cd my-app
 ```
 
-### Start development server
+## Start development server
 
 ```bash
 # in app folder
@@ -18,18 +16,6 @@ npm start
 # This would start a simple http server at http://localhost:3000/
 # Page would reload automatically when code changes
 ```
-
-### Build code
-
-```
-npm build
-```
-
-This would build do the compilation and output to `/build` folder
-
-- All html/js/css files would be compressed and added hash suffix
-- Entry point is index.html
-- You can start a http server in index.html to verify
 
 ## Add support for scss
 
@@ -40,6 +26,32 @@ npm install node-sass --save
 ```
 
 Then rename all css to scss and update references in tsx files
+
+## [Add proxy to backend server](https://create-react-app.dev/docs/proxying-api-requests-in-development/)
+
+- Set up proxy so that when starting react development server, all API requests to development server can be proxied to backend server
+
+- If your backend RESTful api url path all start with `/api`, then setup can be done by adding following entry to package.json
+
+  ```json
+  "proxy": "http://localhost:8080",
+  ```
+
+  `http://localhost:8080` is backend server url
+
+# Build
+
+## Build code
+
+```
+npm build
+```
+
+This would build do the compilation and output to `/build` folder
+
+- All html/js/css files would be compressed and added hash suffix
+- Entry point is index.html
+- You can start a http server in index.html to verify
 
 ## Make build target support IE11
 
