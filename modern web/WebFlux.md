@@ -97,9 +97,6 @@ References:
 - This is a standard whose position is similar to JDBC
 - Most popular DBs already provide r2dbc drivers, e.g. Oracle, MySQL, MariaDB, PostgreSQL, H2
 - But unluckily Sybase does not have r2dbc driver yet
-- Luckily, according to [this](https://stackoverflow.com/a/63899436/2334320), we can use JPA and r2dbc in the same spring project
-  - Then for main DB, which is oracle, we use r2dbc
-  - And for 3rd party system, we use JPA
 
 ### Dependencies
 
@@ -112,87 +109,78 @@ runtimeOnly 'com.h2database:h2'
 runtimeOnly 'io.r2dbc:r2dbc-h2'
 ```
 
-### An example with spring data
+### Transaction Management
+
+- By default, each method in repository has its own transaction
+- You should add `@Transactional` to a spring-managed java bean's method to enable transaction for that method
+- **NOTE: `@Transactional` would only take effect if you invoke it from external class**
+  - Check [java - Spring @Transaction method call by the method within the same class, does not work? - Stack Overflow](https://stackoverflow.com/questions/3423972/spring-transaction-method-call-by-the-method-within-the-same-class-does-not-wo) for detail
+- **NOTE: `@Transactional` method in spring data r2dbc should return reactive type. e.g. Flux, Mono**
+
+### An example with h2 DB
 
 Model class
 
 ```java
-public class Customer {
+public final class Video
+{
+	@Id
+	public final Long id;
+	public final String path;
+	public final LocalDateTime lastModifiedTime;
+	public final String fingerprint;
 
-    @Id
-    public Long id;
+	@PersistenceConstructor
+	public Video(final long id, final String path, final LocalDateTime lastModifiedTime, final String fingerprint)
+	{
+		this.id = id;
+		this.path = path;
+		this.lastModifiedTime = lastModifiedTime;
+		this.fingerprint = fingerprint;
+	}
 
-    public final String firstName;
-
-    public final String lastName;
-
-    public Customer(String firstName, String lastName) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-    }
-
-    @Override
-    public String toString() {
-        return String.format(
-            "Customer[id=%d, firstName='%s', lastName='%s']",
-            id, firstName, lastName);
-    }
+	public Video(final String path, final LocalDateTime lastModifiedTime, final String fingerprint)
+	{
+		this.id = null;
+		this.path = path;
+		this.lastModifiedTime = lastModifiedTime;
+		this.fingerprint = fingerprint;
+	}
 }
-
 ```
 
 Repository interface
 
 ```java
 // Spring data would create implementation for you
-public interface CustomerRepository extends ReactiveCrudRepository<Customer, Long> {
-    @Query("SELECT * FROM customer WHERE last_name = :lastname")
-    Flux<Customer> findByLastName(String lastName);
+public interface VideoRepository extends R2dbcRepository<Video, Long>
+{
 }
 ```
 
-Insert and find
+Remember to add `@EnableR2dbcRepositories`
 
 ```java
-    @Bean
-    public CommandLineRunner demo(CustomerRepository repository) {
-        return (args) -> _demo(repository);
-    }
-
-	private void _demo(CustomerRepository repository) {
-        _insertNewCustomers(repository)
-            .thenMany(Flux.merge(_testFindAll(repository), _testFindByID(repository), _testFindByLastName(repository)))
-            .blockLast();
-    }
-
-    private Flux<Customer> _testFindByLastName(CustomerRepository repository) {
-        return repository.findByLastName("Bauer").doOnNext(bauer -> {
-            log.info(bauer.toString());
-        });
-    }
-
-    private Mono<Customer> _testFindByID(CustomerRepository repository) {
-        return repository.findById(1L).doOnNext(customer -> {
-            log.info("Customer found with findById(1L):");
-            log.info("--------------------------------");
-            log.info(customer.toString());
-            log.info("");
-        });
-    }
-
-    private Flux<Customer> _testFindAll(CustomerRepository repository) {
-        return repository.findAll().doOnNext(customer -> {
-            log.info(customer.toString());
-        });
-    }
-
-    private Flux<Customer> _insertNewCustomers(CustomerRepository repository) {
-        Flux<Customer> saveAll = repository.saveAll(Arrays.asList(new Customer("Jack", "Bauer"),
-                new Customer("Chloe", "O'Brian"),
-                new Customer("Kim", "Bauer"),
-                new Customer("David", "Palmer"),
-                new Customer("Michelle", "Dessler")));
-        return saveAll;
-    }
+@SpringBootApplication
+@EnableR2dbcRepositories
+public class Pygmalion
+{
+	public static void main(final String[] args)
+	{
+		SpringApplication.run(Pygmalion.class, args);
+	}
+}
 ```
 
+Configure DB connection in application.yaml:
+
+```yaml
+spring:
+  r2dbc:
+    # File based embedded h2 DB is used
+    url: r2dbc:h2:file:///C:/pygmalion/data/h2/pygmalion
+    username: tony
+    password: tony
+```
+
+Then you can inject `VideoRepository` and use it
