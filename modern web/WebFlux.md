@@ -184,3 +184,52 @@ spring:
 ```
 
 Then you can inject `VideoRepository` and use it
+
+## Support for frontend routing
+
+- All `/api/**` would be handled by controller
+- React built files would be put into `{project root}/public`, they should be served properly
+- All other paths should be routed to `/public/index.html`
+
+```java
+@Configuration
+@EnableWebFlux
+public class WebConfig implements WebFluxConfigurer
+{
+	@Override
+	public void addResourceHandlers(final ResourceHandlerRegistry registry)
+	{
+		// This pattern has lower priority than the following 2 methods. So it's save to match all here
+		registry.addResourceHandler("/**")
+				// Adding `file:` prefix to tell spring this is not relative to classpath
+				// Instead, it's relative to current directory
+				.addResourceLocations("file:public/")
+				.setCacheControl(CacheControl.maxAge(365, TimeUnit.DAYS));
+	}
+
+	public void configurePathMatch(final PathMatchConfigurer configurer)
+	{
+		configurer
+				.setUseCaseSensitiveMatch(true)
+				.setUseTrailingSlashMatch(false)
+				.addPathPrefix("/api", HandlerTypePredicate.forAnnotation(RestController.class));
+	}
+
+	@Bean
+	public RouterFunction<ServerResponse> indexRouter(@Value("file:public/index.html") final Resource indexHtml)
+	{
+		return route(
+				request ->
+				{
+					if (request.method() != HttpMethod.GET) return false;
+					final String path = request.path();
+					return !path.startsWith("/api") &&
+							!path.startsWith("/static") &&
+							// Path's last part should not have dot. Otherwise it's treated as a file
+							path.indexOf('.', path.lastIndexOf('/')) < 0;
+				},
+				request -> ok().contentType(MediaType.TEXT_HTML).bodyValue(indexHtml));
+	}
+}
+```
+
