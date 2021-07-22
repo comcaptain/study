@@ -878,4 +878,83 @@ export default App;
   - We can easily split those logic out using hooks
 - Hook is more friendly for performance optimization in the future
   - It seems that react team is doing some performance optimization tools
-  - And hook is easier to be optim
+  - And hook is easier to be optimized
+
+## [Hooks at a Glance](https://reactjs.org/docs/hooks-overview.html)
+
+### State Hook
+
+```tsx
+import { useState } from "react";
+
+export default function Example() {
+	const [count1, setCount1] = useState(0);
+	const [count2, setCount2] = useState(0);
+	return (
+		<div>
+			<p>Counter1: You clicked {count1} times</p>
+			<button onClick={() => setCount1(count1 + 1)}>
+				Click me
+			</button>
+			<p>Counter2: You clicked {count2} times</p>
+			<button onClick={() => setCount2(count2 + 1)}>
+				Click me
+			</button>
+		</div>
+	);
+}
+```
+
+### Effect Hook
+
+```tsx
+import { useEffect, useState } from "react";
+
+export default function Example() {
+	const [count, setCount] = useState(0);
+	// Similar to componentDidMount + componentDidUpdate:
+	useEffect(() => {
+		// This would be run after React flushes changes to the DOM
+		document.title = `You clicked ${count} times`;
+	});
+
+	return (
+		<div>
+			<p>Counter1: You clicked {count} times</p>
+			<button onClick={() => setCount(count + 1)}>
+				Click me
+			</button>
+		</div>
+	);
+}
+```
+
+### Custom Hook
+
+A custom hook is a function that wraps built-in hooks directly o
+
+```tsx
+import { useEffect, useState } from "react";
+
+function useCounter(initialCount: number): [number, React.Dispatch<React.SetStateAction<number>>] {
+	const [count, setCount] = useState(0);
+	useEffect(() => {
+		document.title = `You clicked ${count} times`;
+	});
+	return [count, setCount];
+}
+
+export default function Example() {
+	const [count, setCount] = useCounter(0);
+
+	return (
+		<div>
+			<p>Counter1: You clicked {count} times</p>
+			<button onClick={() => setCount(count + 1)}>
+				Click me
+			</button>
+		</div>
+	);
+}
+```
+
