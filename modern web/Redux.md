@@ -153,3 +153,102 @@ document
 - Function that knows how to extract specific pieces of information from a store state value
 - `const selectCounterValue = state => state.value`
 - This can be helpful when system becomes complex
+
+## [Reducer split & combine](https://redux.js.org/tutorials/fundamentals/part-3-state-actions-reducers)
+
+Check [this](https://github.com/comcaptain/demo/commits/redux-fundamentals-example-app/redux-fundamentals-example-app) for demo commits
+
+### Why split?
+
+- As mentioned earlier, one application can only have one single store
+
+- Corresponding to that, one application should have a single root reducer used to create the store
+
+- Of course we can write a fat reducer that handles every single action, but you can image how bad it is:
+
+  ```javascript
+  export default function appReducer(state = initialState, action)
+  {
+  	// The reducer normally looks at the action type field to decide what happens
+  	switch (action.type)
+  	{
+  		case 'todos/todoAdded': {
+  			// return a copy of state with modified state.todos
+  		}
+  		case 'todos/todoToggled': {
+  			// return a copy of state with modified state.todos
+  		}
+  		case 'filters/statusFilterChanged': {
+  			// return a copy of state with modified state.filters
+  		}
+           ...
+  	}
+      return state
+  }
+  ```
+
+  ### Split into smaller reducers
+
+  - It's a convention to put code related to a specific feature to `features/<feature-name>/`xxxSlice.js
+
+  - We can put our split reducer into the xxxSlice js file
+
+  - For the example above, we can split it into `todosSlice.js`:
+
+    ```javascript
+    const initialState = [
+    	{ id: 0, text: 'Learn React', completed: true },
+    	{ id: 1, text: 'Learn Redux', completed: false, color: 'purple' },
+    	{ id: 2, text: 'Build something fun!', completed: false, color: 'blue' }
+    ]
+    
+    export default function todosReducer(state = initialState, action)
+    {
+    	switch (action.type)
+    	{
+    		case 'todos/todoAdded': {
+    			// return a copy of todos with updated values
+    		}
+    		case 'todos/todoToggled': {
+    			// return a copy of todos with updated values
+    		}
+    	}
+        return state
+    }
+    ```
+
+  - Similarly, we'll have `filtersSlice.js` which would export default reducer for `state.filters`
+
+  ### Combine splitted reducers
+
+  ```javascript
+  import todosReducer from './features/todos/todosSlice'
+  import filtersReducer from './features/filters/filtersSlice'
+  
+  export default function rootReducer(state = {}, action)
+  {
+  	// always return a new object for the root state
+  	return {
+  		// the value of `state.todos` is whatever the todos reducer returns
+  		todos: todosReducer(state.todos, action),
+  		// For both reducers, we only pass in their slice of the state
+  		filters: filtersReducer(state.filters, action)
+  	}
+  }
+
+### Simplify combining with `combineReducers` in redux
+
+```javascript
+import { combineReducers } from 'redux'
+
+import todosReducer from './features/todos/todosSlice'
+import filtersReducer from './features/filters/filtersSlice'
+
+// combineReducers does nearly the same thing as the rootReducer in example above
+export default rootReducer = combineReducers({
+	// Define a top-level state field named `todos`, handled by `todosReducer`
+	todos: todosReducer,
+	filters: filtersReducer
+})
+```
+
