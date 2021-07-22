@@ -238,6 +238,10 @@ Check [this](https://github.com/comcaptain/demo/commits/redux-fundamentals-examp
 
 ### Simplify combining with `combineReducers` in redux
 
+```bash
+npm install redux
+```
+
 ```javascript
 import { combineReducers } from 'redux'
 
@@ -245,10 +249,285 @@ import todosReducer from './features/todos/todosSlice'
 import filtersReducer from './features/filters/filtersSlice'
 
 // combineReducers does nearly the same thing as the rootReducer in example above
-export default rootReducer = combineReducers({
+const rootReducer = combineReducers({
 	// Define a top-level state field named `todos`, handled by `todosReducer`
 	todos: todosReducer,
 	filters: filtersReducer
 })
+export default rootReducer
 ```
 
+## [A simple store implemenation](https://redux.js.org/tutorials/fundamentals/part-4-store)
+
+*Check [this](https://github.com/comcaptain/demo/commits/redux-fundamentals-example-app/redux-fundamentals-example-app) for demo commits*
+
+A store usage sample:
+
+```javascript
+import { createStore } from 'redux'
+import rootReducer from './reducer'
+
+let preloadedState
+const persistedTodosString = localStorage.getItem('todos')
+
+if (persistedTodosString)
+{
+	preloadedState = {
+		todos: JSON.parse(persistedTodosString)
+	}
+}
+
+const store = createStore(rootReducer, preloadedState)
+
+export default store;
+```
+
+And it would be used like this:
+
+```javascript
+import store from './store'
+// Log the initial state
+console.log('Initial state: ', store.getState())
+// {todos: [....], filters: {status, colors}}
+
+// Every time the state changes, log it
+// Note that subscribe() returns a function for unregistering the listener
+const unsubscribe = store.subscribe(() =>
+	console.log('State after dispatch: ', store.getState())
+)
+
+// Now, dispatch some actions
+
+store.dispatch({ type: 'todos/todoAdded', payload: 'Learn about actions' })
+store.dispatch({ type: 'todos/todoToggled', payload: 1 })
+store.dispatch({ type: 'filters/statusFilterChanged', payload: 'Active' })
+
+store.dispatch({
+	type: 'filters/colorFilterChanged',
+	payload: { color: 'red', changeType: 'added' }
+})
+
+// Stop listening to state updates
+unsubscribe()
+
+// Dispatch one more action to see what happens
+
+store.dispatch({ type: 'todos/todoAdded', payload: 'Try creating a store' })
+
+```
+
+We can replace `createStore` from redux from following implementation and the test code above would still work:
+
+```javascript
+function createStore(reducer, preloadedState)
+{
+	let state = preloadedState
+	const listeners = []
+
+	function getState()
+	{
+		return state
+	}
+
+	function subscribe(listener)
+	{
+		listeners.push(listener)
+		return function unsubscribe()
+		{
+			const index = listeners.indexOf(listener)
+			listeners.splice(index, 1)
+		}
+	}
+
+	function dispatch(action)
+	{
+		state = reducer(state, action)
+		listeners.forEach(listener => listener())
+	}
+
+	dispatch({ type: '@@redux/INIT' })
+
+	return { dispatch, subscribe, getState }
+}
+```
+
+## [Store enhancers & middleware](https://redux.js.org/tutorials/fundamentals/part-4-store)
+
+*Check [this](https://github.com/comcaptain/demo/commits/redux-fundamentals-example-app/redux-fundamentals-example-app) for demo commits*
+
+### What is Enhancer
+
+- An enhancer can be passed as third parameter of redux's `createStore` method
+- It's like a decorator in decorator design pattern. With it, you can override store's default methods. e.g. getState, dispatch
+
+### Write an enhancer
+
+#### Example 1: `console.log('Hi!')` when dispatching an event
+
+```javascript
+export const sayHiOnDispatch = (createStore) =>
+{
+	return (rootReducer, preloadedState, enhancers) =>
+	{
+		const store = createStore(rootReducer, preloadedState, enhancers)
+
+		function newDispatch(action)
+		{
+			const result = store.dispatch(action)
+			console.log('Hi!')
+			return result
+		}
+		
+		return { ...store, dispatch: newDispatch }
+	}
+}
+```
+
+#### Example 2: Add `meaningOfLife: 42` when `getState()`
+
+```javascript
+export const includeMeaningOfLife = (createStore) =>
+{
+	return (rootReducer, preloadedState, enhancers) =>
+	{
+		const store = createStore(rootReducer, preloadedState, enhancers)
+
+		function newGetState()
+		{
+			return {
+				...store.getState(),
+				meaningOfLife: 42,
+			}
+		}
+
+		return { ...store, getState: newGetState }
+	}
+}
+```
+
+#### Sample usage of enhancer
+
+```javascript
+import { sayHiOnDispatch } from './exampleAddons/enhancers'
+const store = createStore(rootReducer, preloadedState, sayHiOnDispatch)
+```
+
+### Compose multiple enhancers
+
+```javascript
+import { createStore, compose } from 'redux'
+import rootReducer from './reducer'
+import
+	{
+		sayHiOnDispatch,
+		includeMeaningOfLife
+	} from './exampleAddons/enhancers'
+
+const composedEnhancer = compose(sayHiOnDispatch, includeMeaningOfLife)
+
+const store = createStore(rootReducer, undefined, composedEnhancer)
+
+export default store
+```
+
+### What is middleware?
+
+- It's like webfilter in backend mvc design
+
+- It's a special "enhancer" that changes redux store's `dispatch` method behaviour
+
+- Middleware is not a real enhancer, instead, we create a real enhancer using redux's `applyMiddleware`:
+
+  ```javascript
+  import { createStore, applyMiddleware } from 'redux'
+  import rootReducer from './reducer'
+  import { print1, print2, print3 } from './exampleAddons/middleware'
+  
+  const middlewareEnhancer = applyMiddleware(print1, print2, print3)
+  
+  // Pass enhancer as the second arg, since there's no preloadedState
+  const store = createStore(rootReducer, middlewareEnhancer)
+  
+  export default store
+  ```
+
+### [Write a middleware](https://redux.js.org/tutorials/fundamentals/part-4-store#writing-custom-middleware)
+
+#### Basic structure
+
+```javascript
+// This is the middleware itself
+// storeAPI is an object containing the store's {dispatch, getState} functions
+function exampleMiddleware(storeAPI)
+{
+    // next is:
+    //   handleAction function of next middleware if current middleware is not the last one in the middleware chain
+    //   dispatch function of the store
+	return function wrapDispatch(next)
+	{
+		return function handleAction(action)
+		{
+			// Do anything here: pass the action onwards with next(action),
+			// or restart the pipeline with storeAPI.dispatch(action)
+			// Can also use storeAPI.getState() here
+
+			return next(action)
+		}
+	}
+}
+```
+
+And we can simplify it to:
+
+```javascript
+const anotherExampleMiddleware = storeAPI => next => action => {
+  // Do something in here, when each action is dispatched
+
+  return next(action)
+}
+```
+
+#### A simple middleware
+
+```javascript
+const loggerMiddleware = storeAPI => next => action => {
+  console.log('dispatching', action)
+  let result = next(action)
+  console.log('next state', storeAPI.getState())
+  return result
+}
+const middlewareEnhancer = applyMiddleware(loggerMiddleware)
+const store = createStore(rootReducer, middlewareEnhancer)
+```
+
+## Enable redux devtools extension
+
+In browser side, install `Redux DevTools` plugin
+
+In code side:
+
+1. Install dependency
+
+   ```bash
+   npm install redux-devtools-extension
+   ```
+
+2. Use `composeWithDevTools` to wrap enhancer:
+
+   ```javascript
+   import { createStore, applyMiddleware } from 'redux'
+   import { composeWithDevTools } from 'redux-devtools-extension'
+   import rootReducer from './reducer'
+   import { print1, print2, print3 } from './exampleAddons/middleware'
+   
+   const composedEnhancer = composeWithDevTools(
+   	// EXAMPLE: Add whatever middleware you actually want to use here
+   	applyMiddleware(print1, print2, print3)
+   	// other store enhancers if any
+   )
+   
+   const store = createStore(rootReducer, composedEnhancer)
+   export default store
+   ```
+
+   
