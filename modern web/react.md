@@ -867,3 +867,15 @@ function App() {
 export default App;
 ```
 
+# [Hooks](https://reactjs.org/docs/hooks-intro.html)
+
+## [Why hooks over class components?](https://reactjs.org/docs/hooks-intro.html)
+
+- Aggregation is always preferred over inheritance
+  - Hooks allows you to use aggregation
+- Hooks allows you to split logic out from big component
+  - e.g. `componentDidMount` may contains logic for different things
+  - We can easily split those logic out using hooks
+- Hook is more friendly for performance optimization in the future
+  - It seems that react team is doing some performance optimization tools
+  - And hook is easier to be optim
