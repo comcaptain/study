@@ -1,3 +1,5 @@
+# What's behind redux toolkit?
+
 ## Basic
 
 You can check following 2 links for detail:
@@ -531,3 +533,235 @@ In code side:
    ```
 
    
+
+# Use redux toolkit
+
+```bash
+npm install @reduxjs/toolkit
+# Following packages are no longer needed because they are dependency of @reduxjs/toolkit
+# You still need react-redux
+npm uninstall redux redux-thunk reselect redux-devtools-extension
+```
+
+
+
+## [Simplify rootReducer & store](https://redux.js.org/tutorials/fundamentals/part-8-modern-redux#store-setup)
+
+Before:
+
+```js
+import { combineReducers } from 'redux'
+
+import todosReducer from './features/todos/todosSlice'
+import filtersReducer from './features/filters/filtersSlice'
+
+const rootReducer = combineReducers({
+  // Define a top-level state field named `todos`, handled by `todosReducer`
+  todos: todosReducer,
+  filters: filtersReducer
+})
+
+export default rootReducer
+```
+
+```js
+import { createStore, applyMiddleware } from 'redux'
+import thunkMiddleware from 'redux-thunk'
+import { composeWithDevTools } from 'redux-devtools-extension'
+import rootReducer from './reducer'
+
+const composedEnhancer = composeWithDevTools(applyMiddleware(thunkMiddleware))
+
+const store = createStore(rootReducer, composedEnhancer)
+export default store
+```
+
+After:
+
+```js
+import { configureStore } from '@reduxjs/toolkit'
+
+import todosReducer from './features/todos/todosSlice'
+import filtersReducer from './features/filters/filtersSlice'
+
+const store = configureStore({
+  reducer: {
+    // Define a top-level state field named `todos`, handled by `todosReducer`
+    todos: todosReducer,
+    filters: filtersReducer
+  }
+})
+
+export default store
+```
+
+It does following things:
+
+- Combine splitted reducer into root reducer
+- Create store from root reducer
+- Automatically add thunk middleware
+- Automatically add more middleware to check for common mistakes
+- Apply `composeWithDevTools` on enhancement internally to turn on redux browser extension support
+
+## [createSlice](https://redux.js.org/tutorials/fundamentals/part-8-modern-redux#writing-slices)
+
+### Introdcution
+
+A slice is composed of 3 parts:
+
+- reducer
+  - This is default export
+- action factory
+- selector
+
+`createSlice` would help to create reducer and non-async action factory
+
+### Example
+
+```js
+import { createSlice } from "@reduxjs/toolkit"
+
+const initialState = {
+	status: StatusFilters.All,
+	colors: [],
+}
+
+const filtersSlice = createSlice({
+	name: 'filters',
+	initialState,
+	reducers: {
+		statusFilterChanged(state, action)
+		{
+			state.status = action.payload;
+		},
+		colorFilterChanged: {
+			prepare(color, changeType)
+			{
+				return {
+					payload: { color, changeType }
+				}
+			},
+			reducer(state, action)
+			{
+				const { color, changeType } = action.payload;
+				if ('added' === changeType)
+				{
+					if (state.colors.includes(color)) return;
+					state.colors.push(color)
+				}
+				else
+				{
+					state.colors = state.colors.filter($ => color !== $);
+				}
+			}
+		}
+	}
+})
+
+export default filtersSlice.reducer;
+export const { statusFilterChanged, colorFilterChanged } = filtersSlice.actions;
+```
+
+- In reducer implementation, you can safely do state "mutation"
+  - Because internally, library called [Immer](https://immerjs.github.io/immer/) is used
+  - The library would create a proxy wrapper for state, record what's changed, and finally create an immutable state copy
+- `name` field is prefix of action type
+  - e.g. For `statusFilterChanged`, the action type would be `filters/statusFilterChanged`
+- If action factory method accepts at most one parameter, then we can define its reducer like `statusFilterChanged`
+- But if action factory method accepts more than one parameter, the reducer should have 2 functions:
+  - `prepare` function has same parameters as action factory
+  - Its return value would be set to `reducer` function's `action.payload`
+
+## Create async action factory via `createAsyncThunk`
+
+```js
+// 1st parameter is action type
+// Returned value itself is action factory for 'todos/saveNewTodo'
+// Returned value also has 3 properties, they are all action factories:
+// fetchTodos.pending: todos/fetchTodos/pending
+// fetchTodos.fulfilled: todos/fetchTodos/fulfilled
+// fetchTodos.rejected: todos/fetchTodos/rejected
+export const saveNewTodo = createAsyncThunk('todos/saveNewTodo', async text => {
+  const initialTodo = { text }
+  const response = await client.post('/fakeApi/todos', { todo: initialTodo })
+  return response.todo
+})
+
+// Then we can add handler for those 3 actions in createReducer:
+const todosSlice = createSlice({
+	name: 'todos',
+	initialState,
+	reducers: {
+		// ...
+	},
+	extraReducers: builder => builder
+    	// First parameter is action factory, 2nd function's parameter list is same as reducer
+		.addCase(saveNewTodo.fulfilled, (state, action) =>
+		{
+			const todo = action.payload;
+			state.entities[todo.id] = todo;
+		})
+})
+```
+
+## [createEntityAdapter](https://redux-toolkit.js.org/api/createEntityAdapter)
+
+### Introduction
+
+It provides selectors and CRUD operations for entities
+
+### Details
+
+This is used for following state structure:
+
+```js
+{
+    // some other fields,
+    entities: [] // Each entity must have a primary key
+}
+```
+
+Internally, the state would be maintained in following structure:
+
+```javascript
+{
+  // The unique IDs of each item. Must be strings or numbers
+  ids: []
+  // A lookup table mapping entity IDs to the corresponding entity objects
+  entities: {
+  }
+}
+```
+
+Create empty adapter:
+
+```js
+import { createEntityAdapter } from '@reduxjs/toolkit'
+// This method accepts an optional object parameter that has two optional properties:
+// - selectId. Useful when entity primary key is not entity.id. e.g. book => book.bookId
+// - sortComparer. If specified, then entities would be sorted. (a: T, b: T) => number
+const todosAdapter = createEntityAdapter();
+```
+
+We can use the adapter to get initial state:
+
+```js
+const initialState = todosAdapter.getInitialState({ status: 'idle' });
+```
+
+And we can use the adapter to [CRUD](https://redux-toolkit.js.org/api/createEntityAdapter#crud-functions), which is similar to JPA
+
+```js
+todosAdapter.removeOne(state, action.payload)
+todosAdapter.setAll(state, action.payload);
+```
+
+We can get selectors from the adapter and then export them:
+
+```js
+// The state here is root state
+const todosSelector = todosAdapter.getSelectors(state => state.todos);
+// selectAll & selectById are properties of todosSelector, and exported name would be selectTodos, selectTodoById
+export const { selectAll: selectTodos, selectById: selectTodoById } = todosSelector;
+```
+
