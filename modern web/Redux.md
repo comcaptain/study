@@ -848,3 +848,8 @@ export function configureStore(initialState) {
 
 
 
+# Usage With TypeScript
+
+*References*:
+
+- [Usage With TypeScript | Redux Toolkit (redux-toolkit.js.org)](https://redux-toolkit.js.org/usage/usage-with-typescript)

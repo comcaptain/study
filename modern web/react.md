@@ -787,15 +787,17 @@ npm i --save-dev @types/react-router-dom
 import './App.scss';
 import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom';
+import { createBrowserHistory } from 'history';
 
 const Home = lazy(() => import('./Home'));
 const About = lazy(() => import('./About'));
 const Demo = lazy(() => import('./Demo'));
+const history = createBrowserHistory();
 
 function App() {
 	return (
 		<div className="App">
-			<Router>
+			<Router history={history}>
 				<ul>
 					<li>
 						<Link to="/">Home</Link>
