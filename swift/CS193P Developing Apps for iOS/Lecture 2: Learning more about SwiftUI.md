@@ -212,11 +212,255 @@ struct ContentView: View {
 }
 ```
 
+And you can slice an array like below:
+
+```swift
+struct ContentView: View {
+    
+    var emojis = ["🚗", "🚌", "🚑", "🚀", "🛸", "🚁", "🛶", "⛵️", "🚤", "🛥", "🛳", "🪝", "⚓️", "🚢", "⛴", "⛽️", "🚧", "🚦", "🚥", "🗽", "🗿", "🗺", "🚏", "🗼", "🏰"]
+    var emojiCount = 5
+    
+    var body: some View {
+        HStack{
+            // This is to slice the array within range [0, emojiCount)
+            // If you want to change to [0, emojiCount], then use [0...emojiCount]
+            ForEach(emojis[0..<emojiCount], id: \.self, content: {emoji in
+                CardView(content: emoji)
+            })
+        }
+        .padding(.horizontal)
+        .foregroundColor(Color.orange)
+    }
+}
+```
+
+## Spacer and Button
+
+```swift
+struct ContentView: View {    
+    var emojis = ["🚗", "🚌", "🚑", "🚀", "🛸", "🚁", "🛶", "⛵️", "🚤", "🛥", "🛳", "🪝", "⚓️", "🚢", "⛴", "⛽️", "🚧", "🚦", "🚥", "🗽", "🗿", "🗺", "🚏", "🗼", "🏰"]
+    @State var emojiCount = 5
+    
+    var body: some View {
+        VStack{
+            HStack{
+                ForEach(emojis[0..<emojiCount], id: \.self, content: {emoji in
+                    CardView(content: emoji)
+                })
+            }
+            // You can give it a minLength, but it's recommended to make it adjust itself so that it would work well in multiple devices
+            Spacer()
+            HStack{
+                // This is the removeButton variable
+                removeButton
+                // This would consume all free space. So that remove button would be left aligned and add button would be right aligned
+                Spacer()
+                addButton
+            }
+            .font(.largeTitle)
+        }
+        .padding(.horizontal)
+        .foregroundColor(Color.orange)
+    }
+    
+    var addButton: some View {
+        Button(action: {
+            if (emojiCount < emojis.count) {
+                emojiCount += 1;
+            }
+        }, label: {
+            Image(systemName: "plus.circle") // plus.circle comes from an app that Apple provides: SF Symbols
+        })
+    }
+    
+    var removeButton: some View {
+        Button(action: {
+            if (emojiCount > 1) {
+                emojiCount -= 1;
+            }
+        }, label: {
+            Image(systemName: "minus.circle")
+        })
+    }
+}
+```
+
+If one function has 2 functional arguments, we can still simplify it like below:
+
+```swift
+var addButton: some View {
+    Button { // This function is the first argument
+        if (emojiCount < emojis.count) {
+            emojiCount += 1;
+        }
+    } label: { // This function is the second argument, and argument name is label
+        Image(systemName: "plus.circle")
+    }
+}
+```
+
+## aspectRatio, ScrollView and LazyVGrid
+
+```swift
+VStack{
+    // This is to make content viewable
+    ScrollView {
+        // This is called lazy because it would only render items that are visible on the screen
+        // i.e. only call the body var function when the view appears on the screen
+        // The 3 GridItem() is to display fixed 3 rows
+        LazyVGrid(columns: [GridItem(), GridItem(), GridItem()]) {
+            ForEach(emojis[0..<emojiCount], id: \.self, content: {emoji in
+                // The aspectRatio is to make width/height = 2/3
+                CardView(content: emoji).aspectRatio(2/3, contentMode: .fit)
+            })
+        }
+    }
+    Spacer()
+    HStack{
+        removeButton
+        Spacer()
+        addButton
+    }
+    .font(.largeTitle)
+}
+.padding(.horizontal)
+.foregroundColor(Color.orange)
+```
+
+## strokeBorder & stroke
+
+`stroke` would remove what's in the middle and render the border. However, half of the border is outside the view. So the view can be cut off by something like `ScrollView`:
+
+<img src="/Users/tony/Library/Application Support/typora-user-images/image-20210818220544923.png" alt="image-20210818220544923" style="zoom:50%;" />
+
+To make the border fully render inside the view, yon can use `strokeBorder` instead:
+
+```swift
+struct CardView: View {
+    var content: String;
+    @State var isFaceUp: Bool = true
+    var body: some View {
+        ZStack {
+            let cardRectangle: RoundedRectangle = RoundedRectangle(cornerRadius: 25.0)
+            if (self.isFaceUp) {
+                cardRectangle.fill().foregroundColor(.white)
+                cardRectangle.strokeBorder(lineWidth: 3)
+                Text(content).font(.largeTitle)
+            }
+            else {
+                cardRectangle.fill()
+            }
+        }
+        .onTapGesture {
+            isFaceUp = !isFaceUp;
+        }
+    }
+}
+```
+
+<img src="/Users/tony/Library/Application Support/typora-user-images/image-20210818220836948.png" alt="image-20210818220836948" style="zoom:50%;" />
 
 
 
+## Achieve float with LazyVGrid
 
+Now we have 3 fixed columns even if the iPhone is rotated, it would be ideal we can make the card float from left to right like text. This can be achieved with `.adaptive`:
 
+```swift
+LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))]) {
+    ForEach(emojis[0..<emojiCount], id: \.self, content: {emoji in
+        CardView(content: emoji).aspectRatio(2/3, contentMode: .fit)
+    })
+}
+```
+
+## Final Code
+
+```swift
+//
+//  ContentView.swift
+//  Memorize
+//
+//  Created by 孙国强 on 2021/08/15.
+//
+	
+import SwiftUI
+
+struct ContentView: View {
+    var emojis = ["🚗", "🚌", "🚑", "🚀", "🛸", "🚁", "🛶", "⛵️", "🚤", "🛥", "🛳", "🪝", "⚓️", "🚢", "⛴", "⛽️", "🚧", "🚦", "🚥", "🗽", "🗿", "🗺", "🚏", "🗼", "🏰"]
+    @State var emojiCount = 5
+    
+    var body: some View {
+        VStack{
+            ScrollView {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))]) {
+                    ForEach(emojis[0..<emojiCount], id: \.self, content: {emoji in
+                        CardView(content: emoji).aspectRatio(2/3, contentMode: .fit)
+                    })
+                }
+            }
+            Spacer()
+            HStack{
+                removeButton
+                Spacer()
+                addButton
+            }
+            .font(.largeTitle)
+        }
+        .padding(.horizontal)
+        .foregroundColor(Color.orange)
+    }
+    
+    var addButton: some View {
+        Button {
+            if (emojiCount < emojis.count) {
+                emojiCount += 1;
+            }
+        } label: {
+            Image(systemName: "plus.circle")
+        }
+    }
+    
+    var removeButton: some View {
+        Button(action: {
+            if (emojiCount > 1) {
+                emojiCount -= 1;
+            }
+        }, label: {
+            Image(systemName: "minus.circle")
+        })
+    }
+}
+
+struct CardView: View {
+    var content: String;
+    @State var isFaceUp: Bool = true
+    var body: some View {
+        ZStack {
+            let cardRectangle: RoundedRectangle = RoundedRectangle(cornerRadius: 25.0)
+            if (self.isFaceUp) {
+                cardRectangle.fill().foregroundColor(.white)
+                cardRectangle.strokeBorder(lineWidth: 3)
+                Text(content).font(.largeTitle)
+            }
+            else {
+                cardRectangle.fill()
+            }
+        }
+        .onTapGesture {
+            isFaceUp = !isFaceUp;
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+            .previewDevice("iPhone 11")
+            .preferredColorScheme(.light)
+    }
+}
+```
 
 
 
