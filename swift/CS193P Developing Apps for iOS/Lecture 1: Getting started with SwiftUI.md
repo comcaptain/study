@@ -101,7 +101,7 @@ RoundedRectangle(cornerRadius: 25.0)
 
 ### ZStack
 
-You need `ZStack` to put `Text` into a `RoundedRectangle`:
+You need `ZStack` to put `Text` into a `RoundedRectangle`. And the thing that combines multiple views is called **combiner**
 
 ```swift
 ZStack(content: {

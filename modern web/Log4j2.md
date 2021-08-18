@@ -1,6 +1,6 @@
 ## [Architecture](https://logging.apache.org/log4j/2.x/manual/architecture.html)
 
-![Log4j 2 Class Relationships](C:\git\study\modern web\images\Log4jClasses.jpg)
+![Log4j 2 Class Relationships](images\Log4jClasses.jpg)
 
 - **LoggerContext** is the central singleton for the entire log4j2 system
 - **Configuration** Every `LoggerContext` has a `Configuration` that contains log4j2's all configurations
