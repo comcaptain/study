@@ -1,0 +1,102 @@
+{
+  "main": {
+    "id": "ccce6182a53ee169",
+    "type": "split",
+    "children": [
+      {
+        "id": "0fb319c7b5b3082b",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "tools/Karabiner-Elements.md",
+            "mode": "source",
+            "source": false
+          }
+        }
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "6e335f42be90fcbd",
+    "type": "split",
+    "children": [
+      {
+        "id": "3a166ec800770e85",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "5f0347feb86bba9f",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {}
+            }
+          },
+          {
+            "id": "4bec891daf577175",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 261
+  },
+  "right": {
+    "id": "c6304de9148ff10a",
+    "type": "split",
+    "children": [
+      {
+        "id": "105ae70c9cf9fb93",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "88acfa0f3c9c20ee",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "tools/Karabiner-Elements.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "active": "0fb319c7b5b3082b",
+  "lastOpenFiles": [
+    "tools/Karabiner-Elements.md",
+    "tools/rsync.md",
+    "japanese.md",
+    "js refactoring rules.md",
+    "memo.md",
+    "readme.md",
+    "bashrc.md",
+    "Disruptor.md",
+    "es6.md"
+  ]
+}

@@ -32,6 +32,8 @@ To make puppeteer connect to your daily-used browser, with all your cookies, plu
 ```javascript
 // Connect to existing browser
 // To do this, you have to add --remote-debugging-port=9222 when starting up browser
+// In mac, you can do this by executing following command:
+// /Applications/Microsoft\ Edge.app/Contents/MacOS/Microsoft\ Edge --remote-debugging-port=9222 &
 // Then visit url http://127.0.0.1:9222/json/version
 // Get value of webSocketDebuggerUrl and then paste below:
 const browserWSURL = "ws://127.0.0.1:9222/devtools/browser/099b8efb-9a60-4c4a-a76d-13e08bb141cf";
