@@ -1,4 +1,4 @@
-## Re-render only happens when REALLY necessary
+## [Re-render only happens when REALLY necessary](https://youtu.be/RkXv4AXXC_4)
 
 - Re-render would not happen when simply typing in input box 
   - This is because un-controlled components are used
@@ -75,7 +75,7 @@ export default function BasicDemo()
 }
 ```
 
-## Wrapped input/radiobox/checkbox/select
+## [Wrapped input/radiobox/checkbox/select](https://react-hook-form.com/get-started#Integratinganexistingform)
 
 This section explains how to integrate with custom form field, i.e. plain old form field is wrapped in custom component
 
