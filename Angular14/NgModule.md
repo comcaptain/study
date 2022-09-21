@@ -47,3 +47,12 @@ platformBrowserDynamic().bootstrapModule(AppModule)
   - e.g. `FormModule` is needed for form manipulation
 - `declarations` lists all the components in the project
   - This would be updated automatically when running `ng generate component` to create component
+
+## Create a module
+
+```bash
+ng generate module app-routing --flat --module=app
+```
+
+- `--flat` would put the file in `src/app` instead of its own directory
+- `--module=app`: register the new module in the `imports` array of the `AppModule`

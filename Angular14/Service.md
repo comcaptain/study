@@ -58,3 +58,4 @@ export class HeroesComponent implements OnInit
 
 ```
 
+It can also be injected into another service
