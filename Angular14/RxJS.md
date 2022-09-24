@@ -8,9 +8,10 @@
 
 ### [RxJS - Observable](https://rxjs.dev/guide/observable)
 
-Represents the idea of an invokable collection of future values or events.
+- Represents the idea of an invokable collection of future values or events.
 
-Same as Reactive Streams's publisher. But it does not have separate class for Flux and Mono
+- Same as Reactive Streams's publisher. But it does not have separate class for Flux and Mono
+- Same as react stream's publisher, nothing would happen until subscription happens
 
 ```ts
 import { Observable, of } from 'rxjs';
@@ -113,3 +114,44 @@ observable.subscribe(subject); // You can subscribe providing a Subject
 
 - Are centralized dispatchers to control concurrency, allowing us to coordinate when computation happens on e.g. `setTimeout` or `requestAnimationFrame` or others.
 - Similar to scheduler in project reactor. You can use `observeOn` operator to change scheduler (similar to `subscribeOn` in project reactor)
+
+## Operators
+
+### case: Debounce search ajax request
+
+The requirement is to do ajax search when user types search keyword. We need to debounce to reduce ajax frequency:
+
+```ts
+import { Component, OnInit } from '@angular/core';
+import { Subject, Observable, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+import { HeroService } from '../hero.service';
+import Hero from '../heroes/Hero';
+
+@Component({
+	selector: 'app-hero-search',
+	templateUrl: './hero-search.component.html',
+	styleUrls: ['./hero-search.component.scss']
+})
+export class HeroSearchComponent implements OnInit
+{
+	heroes$!: Observable<Hero[]>;
+
+	private searchTerms = new Subject<string>();
+
+	constructor(private heroService: HeroService) { }
+
+	ngOnInit(): void
+	{
+		this.heroes$ = this.searchTerms.pipe(
+			debounceTime(300),
+			distinctUntilChanged(),
+			switchMap(term => this.heroService.searchHeroes(term))
+		)
+	}
+	search(term: string)
+	{
+		this.searchTerms.next(term);
+	}
+}
+```
+

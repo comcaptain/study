@@ -35,3 +35,60 @@ Structural directives are responsible for HTML layout. They shape or reshape the
 </div>
 ```
 
+## async
+
+This is used to subscribe to `Observable` and return result:
+
+**componet**
+
+```ts
+import { Component, OnInit } from '@angular/core';
+import { Subject, Observable, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+import { HeroService } from '../hero.service';
+import Hero from '../heroes/Hero';
+
+@Component({
+	selector: 'app-hero-search',
+	templateUrl: './hero-search.component.html',
+	styleUrls: ['./hero-search.component.scss']
+})
+export class HeroSearchComponent implements OnInit
+{
+  // $ suffix is naming convention Observable-typed property
+	heroes$!: Observable<Hero[]>;
+
+	private searchTerms = new Subject<string>();
+
+	constructor(private heroService: HeroService) { }
+
+	ngOnInit(): void
+	{
+		this.heroes$ = this.searchTerms.pipe(
+			debounceTime(300),
+			distinctUntilChanged(),
+			switchMap(term => this.heroService.searchHeroes(term))
+		)
+	}
+
+	search(term: string)
+	{
+		this.searchTerms.next(term);
+	}
+
+}
+```
+
+Then in template:
+
+```html
+<div id="search-component">
+	<label for="searchBox">Hero Search</label>
+	<input #searchBox type="text" id="search-box" (input)="search(searchBox.value)" />
+	<ul class="search-result">
+		<li *ngFor="let hero of heroes$ | async">
+			<a routerLink="/detail/{{hero.id}}">{{hero.name}}</a>
+		</li>
+	</ul>
+</div>
+```
+

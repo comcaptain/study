@@ -18,15 +18,82 @@ export class AppModule { }
 
 Then you can use it like below
 
-**GET**
+### GET
 
 ```ts
-getHeroes(): Observable<Hero[]>
+function getHeroes(): Observable<Hero[]>
 {
   // It returns an Observable
 	return this.http.get<Hero[]>("/api/heroes");
 }
 ```
+
+### Error Handling
+
+```ts
+function getHeroes(): Observable<Hero[]>
+{
+	return this.http.get<Hero[]>("/api/heroes").pipe(
+		tap(_ => console.log('fetched heroes')),
+		catchError(handleError("getHeroes", []))
+	);
+}
+
+function handleError<T>(operation: string, result?: T)
+{
+	return (error: any): Observable<T> =>
+	{
+		console.error(error);
+		this.log(`${operation} failed: ${error.message}`);
+		return result ? of(result) : of();
+	}
+}
+```
+
+### PUT
+
+```ts
+function updateHero(hero: Hero)
+{
+	return this.http.put("/api/heroes", hero, {
+		headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+	}).pipe(
+		tap(_ => console.log(`updated hero id=${hero.id}`)),
+		catchError(handleError(`updateHero id=${hero.id}`))
+	)
+}
+```
+
+### POST
+
+```ts
+function addHero(hero: Hero): Observable<Hero>
+{
+	return this.http.post<Hero>("/api/heroes", hero, {
+		headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+	}).pipe(
+		tap(_ => console.log(`created new hero ${hero.name}`)),
+		catchError(handleError<Hero>(`addHero id=${hero.id}`))
+	)
+}
+```
+
+
+
+### DELETE
+
+```ts
+function deleteHero(id: number): Observable<Hero>
+{
+	return this.http.delete<Hero>(`/api/heroes/${id}`, {
+		headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+	}).pipe(
+		tap(_ => console.log(`deleted hero id=${id}`)),
+		catchError(handleError<Hero>(`deleteHero id=${id}`)))
+}
+```
+
+
 
 ## [Angular Mock HTTP Server](https://angular.io/tutorial/toh-pt6#simulate-a-data-server)
 
