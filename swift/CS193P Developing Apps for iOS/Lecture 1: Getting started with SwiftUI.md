@@ -2,7 +2,7 @@
 
 ### Create a new IOS app called Memorize in Xcode
 
-<img src="/Users/tony/Library/Application Support/typora-user-images/image-20210815230952400.png" alt="image-20210815230952400" style="zoom:50%;" />
+<img src="./assets/image-20210815230952400.png" alt="image-20210815230952400" style="zoom:50%;" />
 
 ### Project Structure
 
@@ -46,7 +46,7 @@ import SwiftUI
 ```
 
 - struct is a collection of variables and functions
-- It looks similar to class but is not class ContentView is name of the struct, which is similar to class's class name
+- It looks similar to class but is not class. ContentView is name of the struct, which is similar to class's class name
 - `:View` is to make ContentView look like a view. It's similar to class inheritence but it's not
 - `var` is a keyword saying body is a variable
 - `some View` is saying that the type is a View-like type. i.e. struts that `:View`, like ContentView
@@ -67,7 +67,7 @@ The `return` keyword is omitted, you can explicitly add return like below
 }
 ```
 
-- type of `body` is `some View`, but value is a function, which looks weird. In fact, this is to tell swift that value of variable `body` is calculate, its value should be returned value of the function
+- type of `body` is `some View`, but value is a function, which looks weird. In fact, this is to tell swift that value of variable `body` is calculated, its value should be returned value of the function
 
 - `.padding()` is called modifier, you can add modifier in Xcode's inspection window
   - `modifier` would return a modified view

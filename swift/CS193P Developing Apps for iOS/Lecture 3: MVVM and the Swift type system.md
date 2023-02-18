@@ -2,7 +2,7 @@
 
 ## MVVM
 
-![image-20210820230047956](/Users/tony/Library/Application Support/typora-user-images/image-20210820230047956.png)
+![image-20210820230047956](./assets/image-20210820230047956.png)
 
 - MVVM is short for Model, ViewModel, View
 - The philosophy behind is a bit like react + redux:

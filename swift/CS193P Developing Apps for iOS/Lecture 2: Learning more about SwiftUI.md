@@ -27,7 +27,7 @@ HStack{
 }.foregroundColor(Color.orange)
 ```
 
-<img src="/Users/tony/Library/Application Support/typora-user-images/image-20210818201751608.png" alt="image-20210818201751608" style="zoom:30%;" />
+<img src="./assets/image-20210818201751608.png" alt="image-20210818201751608" style="zoom:30%;" />
 
 ## Extract a New View
 
@@ -181,7 +181,7 @@ struct CardView: View {
 
 By default, when clicking the previewer, it would select the view. To make it response like a real iPhone, click following button:
 
-<img src="/Users/tony/Library/Application Support/typora-user-images/image-20210818211500656.png" alt="image-20210818211500656" style="zoom:67%;" />
+<img src="./assets/image-20210818211500656.png" alt="image-20210818211500656" style="zoom:67%;" />
 
 
 
@@ -331,7 +331,7 @@ VStack{
 
 `stroke` would remove what's in the middle and render the border. However, half of the border is outside the view. So the view can be cut off by something like `ScrollView`:
 
-<img src="/Users/tony/Library/Application Support/typora-user-images/image-20210818220544923.png" alt="image-20210818220544923" style="zoom:50%;" />
+<img src="./assets/image-20210818220544923.png" alt="image-20210818220544923" style="zoom:50%;" />
 
 To make the border fully render inside the view, yon can use `strokeBorder` instead:
 
@@ -358,7 +358,7 @@ struct CardView: View {
 }
 ```
 
-<img src="/Users/tony/Library/Application Support/typora-user-images/image-20210818220836948.png" alt="image-20210818220836948" style="zoom:50%;" />
+<img src="./assets/image-20210818220836948.png" alt="image-20210818220836948" style="zoom:50%;" />
 
 
 
