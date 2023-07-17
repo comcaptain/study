@@ -60,7 +60,14 @@
   }
   ```
 
+  ### Struct
   
+  - Similar to Java's class, Struct can be defined in another Struct. e.g. Struct B is defined in Struct A, then B can be referenced as `A.B`
+  
+  ### Class
+  
+  - Inheritance can be achieved using `:`, e.g. `class Test: SuperClass {...}`
+  - One instance field's initializer cannot access another instance field. However, static field can be accessed
 
 ### Differences
 
@@ -97,7 +104,7 @@ Similar to js, you can assign function to a variable, and a function variable's 
 
 ## private & private(set)
 
-private is similar as java, which makes a class/struct var inivisible outside. While `private(set)` would make the var readable outside but not writable outside:
+private is similar to java, which makes a class/struct var inivisible outside. While `private(set)` would make the var readable outside but not writable outside:
 
 ```swift
 class EmojiMemoryGame {
@@ -123,6 +130,11 @@ class EmojiMemoryGame {
 
 // And since we are not using index, so we can change index to _
 {_ in "😀"}
+
+// You can even remove the in keyword, e.g.
+cards.firstIndex(where: {c in c.id == card.id}
+// You can replace it with
+cards.firstIndex(where: $0.id == card.id) // $0 represents the first argument in the closure
 ```
 
 ## static var and functions
@@ -137,6 +149,15 @@ class EmojiMemoryGame {
         // For a one-liner, you do not have to add return
         MemoryGame(numberOfCards: 3) { pairIndex in emojis[pairIndex] };
     }
+}
+```
+
+## for-loop
+
+```swift
+// numberOfPairsOfCards is Int-typed
+for i in 0..<numberOfPairsOfCards {
+   // Do something  
 }
 ```
 
