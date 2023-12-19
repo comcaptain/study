@@ -1,21 +1,42 @@
-济南工程职业技术学院（入学成功）
+# Performance Testing Tool Design Summary
 
-- 国防教育学院（今年刚成立）
-  - 121人拟录取
-    - 已经拟录取，政审和体检（身体没有大问题）
-  - 招收120个人
-    - 60 服役两年之后考军士
-    - 30 军士
-- 道路与桥梁
-- 建筑工程技术
-- 汽车工程学院（现在所在专业）
+## Backend (Spring Boot)
 
-实验班300多人，90%，普通班
+### Historical Test Management
+- **API Endpoints**:
+  - `GET /tests`: Retrieve all past performance tests.
+  - `DELETE /tests/{testId}`: Delete a specific test by its ID.
+  - `PATCH /tests/{testId}`: Rename a specific test.
 
-100多人一本
+### Test Execution and Reporting
+- **Unique Test ID Generation**: Format `[ConfigurationName]_[Timestamp]`.
+- **Logging**: Include the test ID in all log entries.
+- **Report Generation**: Save reports in `./[TestResultsRoot]/[TestID]/`.
+- **Snapshot Saving**: Store testing program version and configuration in each test result folder.
 
-400多人二本
+### Real-Time Updates via WebSocket
+- Update internal cache with test metrics.
+- Notify frontend upon cache changes.
 
-一摸470名，二模601名。
+## Frontend (React + TypeScript)
 
-443二本线，高考成绩380。
+### Historical Tests Display and Management
+- **List Historical Tests**: Display all past tests with options to group by year/month.
+- **Grouping Functionality**: Allow users to view tests in collapsible sections or tabs based on time.
+- **Deletion and Renaming**: UI controls for deleting and renaming tests.
+- **Pagination/Infinite Scrolling**: For handling large data sets.
+
+### Test Monitoring and Configuration
+- **Real-Time Test Status**: Display metrics like number of messages sent/received and message rate.
+- **Configuration Management**: UI for CRUD operations on test configurations.
+
+### WebSocket Integration
+- Implement native WebSocket for real-time updates.
+- Custom logic for auto-reconnection.
+
+## Development Considerations
+
+- **File Management**: Efficient handling of configuration and test result files.
+- **Error Handling**: Robust error handling, especially for file and WebSocket operations.
+- **User Feedback**: Immediate UI feedback for user actions.
+- **Testing and Documentation**: Thorough testing of all components and maintaining clear documentation.
