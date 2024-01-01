@@ -24,7 +24,9 @@ ExportInterfaceFiles code
 ExportInterfaceFiles art
 ```
 
-执行之后会在游戏安装路径生成两个文件夹："BlizzardInterfaceCode" and "BlizzardInterfaceArt" f
+执行之后会在游戏安装路径生成两个文件夹："BlizzardInterfaceCode" and "BlizzardInterfaceArt"。
+
+其中UI界面的xml validation文件在：`./BlizzardInterfaceCode/Interface/FrameXML/UI_shared.xsd`
 
 ## 如何将BLP文件转换成png
 
@@ -52,5 +54,34 @@ for /R "%source_folder%" %%F in (*.blp *.BLP) do (
 echo %date% %time% - Conversion Complete >> "%log_file%"
 
 endlocal
+```
+
+## 如何validate UI xml文件并添加自动提示
+
+在VS code中添加插件XML (Red Hat)，然后将`./BlizzardInterfaceCode/Interface/FrameXML/UI_shared.xsd`复制到插件文件夹，然后在Ui上设如下attribute：
+
+```xml
+<Ui xmlns="http://www.blizzard.com/wow/ui/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.blizzard.com/wow/ui/ UI_shared.xsd">
+</Ui>
+```
+
+## 打开event日志
+
+聊天框中输入命令`/etrace`
+
+## VS code插件配置
+
+- Wow API
+- Wow Bundle
+- Lua Debug
+
+## 获取当前游戏版本
+
+这个可以放在toc文件的Interface行
+
+```bash
+/run print(select(4, GetBuildInfo()))
 ```
 
