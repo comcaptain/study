@@ -1,42 +1,21 @@
-# Performance Testing Tool Design Summary
+```q
+endTime: .z.dt;
+startTime: .z.dt - 1m;
+select from (select countCombination: count i by a, b, c from getRows[`startTime`endTime`tableName`whereClause ! (startTime; endTime; `abc; "")]) where countCombination > 1
+// Define the time range for the past month
+endTime: .z.dt;
+startTime: .z.dt - 1m;
 
-## Backend (Spring Boot)
+// Construct the query using getRows
+result: getRows[`startTime`endTime`tableName`whereClause ! (startTime; endTime; `abc; "1b")];
 
-### Historical Test Management
-- **API Endpoints**:
-  - `GET /tests`: Retrieve all past performance tests.
-  - `DELETE /tests/{testId}`: Delete a specific test by its ID.
-  - `PATCH /tests/{testId}`: Rename a specific test.
+// Aggregation to count combinations of a, b, and c
+aggregatedData: select countCombination: count i by a, b, c from result;
 
-### Test Execution and Reporting
-- **Unique Test ID Generation**: Format `[ConfigurationName]_[Timestamp]`.
-- **Logging**: Include the test ID in all log entries.
-- **Report Generation**: Save reports in `./[TestResultsRoot]/[TestID]/`.
-- **Snapshot Saving**: Store testing program version and configuration in each test result folder.
+// Check for duplicates
+duplicates: select from aggregatedData where countCombination > 1;
 
-### Real-Time Updates via WebSocket
-- Update internal cache with test metrics.
-- Notify frontend upon cache changes.
+// Result
+duplicates
 
-## Frontend (React + TypeScript)
-
-### Historical Tests Display and Management
-- **List Historical Tests**: Display all past tests with options to group by year/month.
-- **Grouping Functionality**: Allow users to view tests in collapsible sections or tabs based on time.
-- **Deletion and Renaming**: UI controls for deleting and renaming tests.
-- **Pagination/Infinite Scrolling**: For handling large data sets.
-
-### Test Monitoring and Configuration
-- **Real-Time Test Status**: Display metrics like number of messages sent/received and message rate.
-- **Configuration Management**: UI for CRUD operations on test configurations.
-
-### WebSocket Integration
-- Implement native WebSocket for real-time updates.
-- Custom logic for auto-reconnection.
-
-## Development Considerations
-
-- **File Management**: Efficient handling of configuration and test result files.
-- **Error Handling**: Robust error handling, especially for file and WebSocket operations.
-- **User Feedback**: Immediate UI feedback for user actions.
-- **Testing and Documentation**: Thorough testing of all components and maintaining clear documentation.
+```
