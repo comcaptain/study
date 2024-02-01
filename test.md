@@ -1,21 +1,22 @@
-```q
-endTime: .z.dt;
-startTime: .z.dt - 1m;
-select from (select countCombination: count i by a, b, c from getRows[`startTime`endTime`tableName`whereClause ! (startTime; endTime; `abc; "")]) where countCombination > 1
-// Define the time range for the past month
-endTime: .z.dt;
-startTime: .z.dt - 1m;
+```js
+function getCircularReplacer() {
+  const seen = new WeakSet();
+  return (key, value) => {
+    if (typeof value === "object" && value !== null) {
+      if (seen.has(value)) {
+        // Replace circular reference
+        return;
+      }
+      seen.add(value);
+    }
+    return value; // Return value if it's not a circular reference
+  };
+}
 
-// Construct the query using getRows
-result: getRows[`startTime`endTime`tableName`whereClause ! (startTime; endTime; `abc; "1b")];
+const obj = { name: "Alice" };
+obj.self = obj; // Circular reference
 
-// Aggregation to count combinations of a, b, and c
-aggregatedData: select countCombination: count i by a, b, c from result;
-
-// Check for duplicates
-duplicates: select from aggregatedData where countCombination > 1;
-
-// Result
-duplicates
+const safeStringify = JSON.stringify(obj, getCircularReplacer());
+console.log(safeStringify); // {"name":"Alice","self":null}
 
 ```
