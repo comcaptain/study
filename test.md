@@ -1,33 +1,35 @@
-```java
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.Appender;
-import org.slf4j.LoggerFactory;
+```ts
+import simpleGit, { SimpleGit, BranchSummary } from 'simple-git';
 
-public class LogbackConfigPrinter {
+async function deleteLocalBranchIfNotPushed(branchName: string, repoPath: string) {
+    const git: SimpleGit = simpleGit(repoPath);
 
-    public static void printLogbackConfig() {
-        LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+    try {
+        // Get list of branches with detailed tracking information
+        const branchSummary: BranchSummary = await git.branch(['-vv']);
 
-        for (ch.qos.logback.classic.Logger logger : context.getLoggerList()) {
-            for (Appender<ILoggingEvent> appender : logger.iteratorForAppenders()) {
-                if (appender instanceof ch.qos.logback.core.OutputStreamAppender) {
-                    ch.qos.logback.core.OutputStreamAppender<ILoggingEvent> osAppender = (ch.qos.logback.core.OutputStreamAppender<ILoggingEvent>) appender;
-                    if (osAppender.getEncoder() instanceof PatternLayoutEncoder) {
-                        PatternLayoutEncoder encoder = (PatternLayoutEncoder) osAppender.getEncoder();
-                        System.out.println("Logger: " + logger.getName() + 
-                                           ", Appender: " + appender.getName() + 
-                                           ", Pattern: " + encoder.getPattern());
-                    }
-                }
-            }
+        // Check if the branch exists locally and whether it tracks any remote branch
+        const branch = branchSummary.branches[branchName];
+        if (!branch) {
+            console.log('Branch does not exist locally.');
+            return;
         }
-    }
 
-    public static void main(String[] args) {
-        printLogbackConfig();
+        // The branch has a remote tracking branch if it shows a remote in the description
+        if (branch.label && branch.label.includes('origin/')) {
+            console.log('Branch has been pushed or is tracking a remote branch. Skipping deletion.');
+        } else {
+            // Branch is not pushed to any remote
+            await git.deleteLocalBranch(branchName, true);
+            console.log(`Branch '${branchName}' deleted successfully because it was not pushed.`);
+        }
+    } catch (error) {
+        console.error('Error processing the git branches:', error);
     }
 }
+
+// Usage example
+deleteLocalBranchIfNotPushed('feature-branch', '/path/to/your/repo');
+
 
 ```
