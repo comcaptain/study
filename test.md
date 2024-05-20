@@ -1,12 +1,18 @@
 ```
 [alias]
     create-feature-branch = "!f() { \
-        if git show-ref --verify --quiet refs/heads/feature/$1; then \
-            echo 'Error: Branch feature/$1 already exists.'; \
+        branch_name=feature/abc-$1; \
+        if git show-ref --verify --quiet refs/heads/$branch_name; then \
+            echo \"Error: Branch $branch_name already exists.\"; \
             exit 1; \
         fi; \
-        git fetch origin master:master && \
-        git checkout -b feature/$1 master; \
+        echo \"Checking out master branch...\"; \
+        git checkout master && \
+        echo \"Pulling latest changes from master...\"; \
+        git pull origin master && \
+        echo \"Creating new branch $branch_name from master...\"; \
+        git checkout -b $branch_name master && \
+        echo \"Switched to new branch $branch_name.\"; \
     }; f"
 ```
 
