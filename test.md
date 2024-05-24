@@ -1,19 +1,18 @@
-```
 [alias]
-    create-feature-branch = "!f() { \
-        branch_name=feature/abc-$1; \
-        if git show-ref --verify --quiet refs/heads/$branch_name; then \
-            echo \"Error: Branch $branch_name already exists.\"; \
-            exit 1; \
+    pr = "!f() { \
+        if [ $# -eq 0 ]; then \
+            echo \"Usage: git pr <dev-branch-name>\"; \
+            return 1; \
         fi; \
-        echo \"Checking out master branch...\"; \
-        git checkout master && \
-        echo \"Pulling latest changes from master...\"; \
-        git pull origin master && \
-        echo \"Creating new branch $branch_name from master...\"; \
-        git checkout -b $branch_name master && \
-        echo \"Switched to new branch $branch_name.\"; \
+        DEV_BRANCH=$1; \
+        REVIEW_BRANCH=review-$DEV_BRANCH; \
+        echo \"Deleting branch $REVIEW_BRANCH if it exists...\"; \
+        git branch -D $REVIEW_BRANCH 2>/dev/null || true; \
+        echo \"Fetching latest changes...\"; \
+        git fetch; \
+        echo \"Creating review branch $REVIEW_BRANCH from latest master...\"; \
+        git checkout -b $REVIEW_BRANCH origin/master; \
+        echo \"Merging $DEV_BRANCH into $REVIEW_BRANCH with no fast forward...\"; \
+        git merge --no-ff $DEV_BRANCH; \
+        echo \"Merge complete.\"; \
     }; f"
-```
-
-git create-feature-branch JIRA-123
