@@ -1,34 +1,42 @@
+```ts
+import rp from 'request-promise-native';
+import { initializeClient, KerberosClient } from 'kerberos';
 
-```q
-// Example tables
-a: flip `c1`c2`c3`c4`c5`c6!((1 2 3); ("a"; "b"; "c"); (10 20 30); (100 200 300); (1000 2000 3000); (10000 20000 30000))
-b: flip `c1`c2`c3`c4`c5`c7!((1 2 3); ("a"; "b"; "c"); (10 20 30); (100 200 300); (1000 2000 3000); (100000 200000 300000))
+async function fetchWithKerberos(url: string): Promise<void> {
+    try {
+        // Initialize Kerberos client
+        const kerberosClient: KerberosClient = await new Promise((resolve, reject) => {
+            initializeClient('HTTP@your.server.com', {}, (err, client) => {
+                if (err) reject(err);
+                else resolve(client as KerberosClient);
+            });
+        });
 
-keys: `c1`c2`c3`c4
+        // Generate the Kerberos ticket
+        const kerberosTicket: string = await new Promise((resolve, reject) => {
+            kerberosClient.step('', (err, response) => {
+                if (err) reject(err);
+                else resolve(response as string);
+            });
+        });
 
-// Anonymous function to perform left join and rename columns
-result: {
-  a: x;
-  b: y;
-  keys: z;
-  
-  // Perform left join
-  joinedTable: lj[keys; a; b];
+        // Make the request with the Kerberos ticket
+        const options = {
+            uri: url,
+            headers: {
+                'Authorization': `Negotiate ${kerberosTicket}`
+            },
+            json: true
+        };
 
-  // Rename columns from table b
-  commonCols: keys;  // Columns to join on
-  bCols: key b except commonCols;  // Columns from table b
+        const response = await rp(options);
+        console.log('Response:', response);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
 
-  // Generate new names for columns from b
-  renamedBCols: "x", upper each string each first each bCols, string each rest each bCols;
-
-  // Create a dictionary for renaming
-  renameDict: bCols!renamedBCols;
-
-  // Rename columns in joined table and return the result
-  update renameDict from joinedTable
-}[a; b; keys]
-
-// Display the result
-result
+// Example usage
+const url = 'http://your.server.com/endpoint';
+fetchWithKerberos(url);
 ```
