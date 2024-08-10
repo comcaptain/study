@@ -57,7 +57,7 @@ Kotlin can infer generic type. But generic type declaration is also supported
 
 `[]` can be used to access list element
 
-`in` can be used to check item existence:
+`in` & `!in` can be used to check item existence:
 
 ```kotlin
 val readOnlyShapes = listOf("triangle", "square", "circle")
@@ -224,5 +224,190 @@ println(listOf(1, 2, 3).fold(0, { x, item -> x + item })) // 6
 
 // Alternatively, in the form of a trailing lambda
 println(listOf(1, 2, 3).fold(0) { x, item -> x + item })  // 6
+```
+
+# Class
+
+```kotlin
+// Similar to typescript, without val, var, id & email would not become property
+// You can also add private modifier to it
+class Contact(val id: Int, var email: String)
+
+fun main() {
+    val contact = Contact(1, "mary@gmail.com")
+}
+```
+
+Property can also be declared directly:
+
+```kotlin
+class Contact(val id: Int, var email: String = "example@gmail.com") {
+    val category: String = "work"
+}
+```
+
+
+
+## constructor
+
+This is a bit messy. It has so called primary constructor:
+
+```kotlin
+class Person constructor(firstName: String) { /*...*/ }
+```
+
+If the primary constructor does not have any annotations or visibility modifiers, the `constructor` keyword can be omitted:
+
+```kotlin
+class Person(firstName: String) { /*...*/ }
+```
+
+The body of the primary constructor are in `init` logic block, inside which primary constructor's parameters can be accessed
+
+```kotlin
+class InitOrderDemo(name: String) {
+    val firstProperty = "First property: $name".also(::println)
+    
+    init {
+        println("First initializer block that prints $name")
+    }
+    // Primary constructor parameter is also visible for property expression
+    val secondProperty = "Second property: ${name.length}".also(::println)
+    
+    init {
+        println("Second initializer block that prints ${name.length}")
+    }
+}
+```
+
+Secondary constructor's syntax is similar to typescript's constructor. And before it's executed, primary constructor would be executed first (including all init blocks)
+
+```kotlin
+class Person(val name: String) {
+    val children: MutableList<Person> = mutableListOf()
+    constructor(name: String, parent: Person) : this(name) {
+        parent.children.add(this)
+    }
+}
+```
+
+## Member function
+
+```kotlin
+class Contact(val id: Int, var email: String) {
+    fun printId() {
+        println(id)
+    }
+}
+```
+
+## Data class
+
+It's similar to java's record but is **NOT immutable** if var is used
+
+```kotlin
+data class User(val name: String, val id: Int)
+```
+
+### toString of data class
+
+```kotlin
+val user = User("Alex", 1)
+
+// Automatically uses toString() function so that output is easy to read
+println(user)            
+// User(name=Alex, id=1)
+```
+
+### equals is implemented
+
+```kotlin
+val user = User("Alex", 1)
+val secondUser = User("Alex", 1)
+val thirdUser = User("Max", 2)
+
+// Compares user to second user
+println("user == secondUser: ${user == secondUser}") 
+// user == secondUser: true
+
+// Compares user to third user
+println("user == thirdUser: ${user == thirdUser}")   
+// user == thirdUser: false
+```
+
+### copy
+
+```kotlin
+val user = User("Alex", 1)
+val secondUser = User("Alex", 1)
+val thirdUser = User("Max", 2)
+
+// Creates an exact copy of user
+println(user.copy())       
+// User(name=Alex, id=1)
+
+// Creates a copy of user with name: "Max"
+println(user.copy("Max"))  
+// User(name=Max, id=1)
+
+// Creates a copy of user with id: 3
+println(user.copy(id = 3)) 
+// User(name=Alex, id=3)
+```
+
+# null
+
+Similar to typescript, nullable & non-nullable value have different types:
+
+```kotlin
+fun main() {
+    // neverNull has String type
+    var neverNull: String = "This can't be null"
+
+    // Throws a compiler error
+    neverNull = null
+
+    // nullable has nullable String type
+    var nullable: String? = "You can keep a null here"
+
+    // This is OK
+    nullable = null
+
+    // By default, null values aren't accepted
+    var inferredNonNull = "The compiler assumes non-nullable"
+
+    // Throws a compiler error
+    inferredNonNull = null
+
+    // notNull doesn't accept null values
+    fun strLength(notNull: String): Int {                 
+        return notNull.length
+    }
+
+    println(strLength(neverNull)) // 18
+    println(strLength(nullable))  // Throws a compiler error
+}
+```
+
+And similar to typescript, `?.` can be used
+
+```kotlin
+fun lengthString(maybeString: String?): Int? = maybeString?.length
+
+fun main() { 
+    val nullString: String? = null
+    println(lengthString(nullString))
+    // null
+}
+```
+
+Use ` ?: ` to specify default value. It's same as `??` in js
+
+```kotlin
+fun main() {
+    val nullString: String? = null
+    println(nullString?.length ?: 0)
+    // 0
+}
 ```
 
