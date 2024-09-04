@@ -1,65 +1,77 @@
 ```ts
-const fetch = require('node-fetch');
-const zlib = require('zlib');
+import * as https from 'https';
+import * as zlib from 'zlib';
 
-// Example URL that returns a compressed response
-const url = 'https://example.com';
-
-// Fetch the URL with decompression handling
-async function fetchWithDecompression(url) {
-    try {
-        const response = await fetch(url, {
-            headers: {
-                'Accept-Encoding': 'gzip, deflate'  // Let the server know you accept compressed responses
-            }
-        });
-
-        // Check the encoding of the response
-        const encoding = response.headers.get('content-encoding');
-
-        // Stream the response data
+// Helper function to handle Gzip and Deflate decompression
+function decompress(buffer: Buffer, encoding: string): Promise<string> {
+    return new Promise((resolve, reject) => {
         if (encoding === 'gzip') {
-            const gunzip = zlib.createGunzip();
-            response.body.pipe(gunzip);
-
-            let decompressedData = '';
-            gunzip.on('data', (chunk) => {
-                decompressedData += chunk.toString();
+            zlib.gunzip(buffer, (err, decoded) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(decoded.toString());
             });
-
-            gunzip.on('end', () => {
-                console.log(decompressedData);  // Output decompressed content
-            });
-
         } else if (encoding === 'deflate') {
-            const inflate = zlib.createInflate();
-            response.body.pipe(inflate);
-
-            let decompressedData = '';
-            inflate.on('data', (chunk) => {
-                decompressedData += chunk.toString();
+            zlib.inflate(buffer, (err, decoded) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(decoded.toString());
             });
-
-            inflate.on('end', () => {
-                console.log(decompressedData);  // Output decompressed content
-            });
-
         } else {
-            // If not compressed, directly read the response
-            let responseData = '';
-            response.body.on('data', (chunk) => {
-                responseData += chunk.toString();
+            // If no compression, return the buffer as a string
+            resolve(buffer.toString());
+        }
+    });
+}
+
+// The async function for making a GET request with Gzip handling
+export async function gzipGetRequest(url: string, token: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const options: https.RequestOptions = {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,  // Add Authorization header
+                'Accept-Encoding': 'gzip, deflate'   // Accept compressed responses
+            }
+        };
+
+        // Parse the URL and make the request
+        https.get(url, options, (res) => {
+            const encoding = res.headers['content-encoding'];
+            let chunks: Buffer[] = [];
+
+            // Collect response chunks
+            res.on('data', (chunk) => {
+                chunks.push(chunk);
             });
 
-            response.body.on('end', () => {
-                console.log(responseData);  // Output uncompressed content
+            // Handle the end of the response
+            res.on('end', async () => {
+                try {
+                    const buffer = Buffer.concat(chunks);
+                    const result = await decompress(buffer, encoding || '');
+                    resolve(result);  // Return the decompressed content
+                } catch (err) {
+                    reject(`Decompression error: ${err}`);
+                }
             });
-        }
-    } catch (error) {
-        console.error('Fetch error:', error);
-    }
+        }).on('error', (err) => {
+            reject(`Request error: ${err}`);
+        });
+    });
 }
 
 // Example usage
-fetchWithDecompression(url);
+(async () => {
+    try {
+        const url = 'https://example.com';
+        const token = 'your-token-here';
+        const result = await gzipGetRequest(url, token);
+        console.log(result);  // Decompressed or raw content
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();
 ```
