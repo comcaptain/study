@@ -1,39 +1,63 @@
-```ahk
-#Persistent
-CoordMode, Mouse, Screen   ; Coordinates relative to the entire screen
-SetMouseDelay, 200         ; 200 ms delay between mouse clicks
+```java
+import java.awt.Robot;
+import java.awt.event.KeyEvent;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
-; Pre-defined coordinates for clicking (example coordinates)
-clickCoords := [[100, 200], [200, 300], [300, 400], [400, 500]]
+public class MyRobot {
 
-scrollInterval := 60000    ; 1 minute in milliseconds
-lastScrollTime := A_TickCount ; Record startup time
-scrollDirection := 0       ; 0 = Scroll Down, 1 = Scroll Up
+    private Robot robot;
+    private Random random;
 
-Loop
-{
-    ; Click all the pre-defined coordinates
-    for each, coords in clickCoords
-    {
-        MouseClick, Left, % coords.1, % coords.2
-        Sleep, 200 ; 200 ms delay between each click
+    public MyRobot() throws Exception {
+        // Initialize the Robot instance and Random instance
+        this.robot = new Robot();
+        this.random = new Random();
     }
 
-    ; Check if 1 minute has passed since last scroll or script start
-    if (A_TickCount - lastScrollTime > scrollInterval)
-    {
-        if (scrollDirection = 0)
-        {
-            Send {WheelDown 20}  ; Scroll down 20 lines
-            scrollDirection := 1 ; Next time, scroll up
-        }
-        else
-        {
-            Send {WheelUp 20}    ; Scroll up 20 lines
-            scrollDirection := 0 ; Next time, scroll down
-        }
+    // Method to press Alt+Tab
+    public void pressAltTab() {
+        // Press Alt key
+        robot.keyPress(KeyEvent.VK_ALT);
+        // Press Tab key
+        robot.keyPress(KeyEvent.VK_TAB);
+        // Release Tab key
+        robot.keyRelease(KeyEvent.VK_TAB);
+        // Release Alt key
+        robot.keyRelease(KeyEvent.VK_ALT);
+    }
 
-        lastScrollTime := A_TickCount ; Reset the scroll time
+    // Method to start Alt+Tab at random intervals
+    public void startSwitching() {
+        while (true) {
+            try {
+                // Call the method to press Alt+Tab
+                pressAltTab();
+
+                // Wait for a random interval between 10 to 30 seconds
+                int interval = 10 + random.nextInt(21); // Random interval between 10 and 30
+                System.out.println("Switching in " + interval + " seconds.");
+
+                // Sleep for the random interval
+                TimeUnit.SECONDS.sleep(interval);
+
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.out.println("Thread interrupted. Stopping Alt+Tab switching.");
+                break;
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        try {
+            // Create an instance of MyRobot and start switching
+            MyRobot myRobot = new MyRobot();
+            myRobot.startSwitching();
+        } catch (Exception e) {
+            System.err.println("Failed to initialize MyRobot: " + e.getMessage());
+        }
     }
 }
+
 ```
