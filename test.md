@@ -16,10 +16,16 @@ interface ParsedPatch {
   hunks: Hunk[];
 }
 
+/**
+ * Determines if two lines differ only by whitespace.
+ */
 function isWhitespaceOnlyDifference(originalLine: string, changedLine: string): boolean {
   return originalLine.replace(/\s+/g, '') === changedLine.replace(/\s+/g, '');
 }
 
+/**
+ * Parse a unified diff patch file.
+ */
 async function parsePatchFile(patchFilePath: string): Promise<ParsedPatch> {
   const data = await fs.readFile(patchFilePath, 'utf8');
   const lines = data.split('\n');
@@ -36,16 +42,12 @@ async function parsePatchFile(patchFilePath: string): Promise<ParsedPatch> {
     } else if (line.startsWith('+++ ')) {
       patchedFile = line.replace(/^\+\+\+\s+/, '').trim();
     } else if (line.startsWith('@@')) {
-      // If a previous hunk was in progress, finalize it
       if (currentHunk) {
         hunks.push(currentHunk);
       }
-
       const match = line.match(/^@@ -(\d+),?(\d*) \+(\d+),?(\d*) @@/);
       if (!match) continue;
-
-      const [ , oStart, oCount, pStart, pCount ] = match;
-
+      const [ , oStart, oCount, pStart, pCount] = match;
       currentHunk = {
         header: line,
         originalStart: parseInt(oStart, 10),
@@ -55,14 +57,12 @@ async function parsePatchFile(patchFilePath: string): Promise<ParsedPatch> {
         lines: []
       };
     } else {
-      // Lines that are part of the current hunk
       if (currentHunk) {
         currentHunk.lines.push(line);
       }
     }
   }
 
-  // Push the last hunk if any
   if (currentHunk) {
     hunks.push(currentHunk);
   }
@@ -73,94 +73,126 @@ async function parsePatchFile(patchFilePath: string): Promise<ParsedPatch> {
   };
 }
 
-function removeWhitespaceOnlyChanges(parsed: ParsedPatch): ParsedPatch {
-  for (const hunk of parsed.hunks) {
-    const originalLines = hunk.lines;
-    const minusIndices = originalLines.reduce<number[]>((acc, val, idx) => {
-      if (val.startsWith('-')) acc.push(idx);
-      return acc;
-    }, []);
-    const plusIndices = originalLines.reduce<number[]>((acc, val, idx) => {
-      if (val.startsWith('+')) acc.push(idx);
-      return acc;
-    }, []);
+/**
+ * Revert whitespace-only changes directly in the patched JS file using only the patch info.
+ * 
+ * Steps:
+ * - Identify pairs of minus and plus lines that differ only by whitespace.
+ * - For each such pair, remove the plus line from the patched JS file and insert the minus line.
+ */
+async function revertWhitespaceOnlyChanges(
+  patchFilePath: string,
+  patchedJsFilePath: string,
+): Promise<void> {
+  const parsedPatch = await parsePatchFile(patchFilePath);
+  let patchedContent = (await fs.readFile(patchedJsFilePath, 'utf8')).split('\n');
 
-    const linesToRemove = new Set<number>();
+  // We'll iterate over hunks and adjust patchedContent accordingly.
+  for (const hunk of parsedPatch.hunks) {
+    const { originalStart, patchedStart, lines } = hunk;
+    const oStart = originalStart - 1; // zero-based
+    const pStart = patchedStart - 1; // zero-based
 
+    const minusLines = lines.filter(l => l.startsWith('-')).map(l => l.substring(1));
+    const plusLines = lines.filter(l => l.startsWith('+')).map(l => l.substring(1));
+
+    // We'll match minus lines and plus lines in order.
     let i = 0;
     let j = 0;
-    // Attempt to match minus and plus lines one-by-one to detect whitespace-only changes
-    while (i < minusIndices.length && j < plusIndices.length) {
-      const minusLineContent = originalLines[minusIndices[i]].substring(1); // remove '-'
-      const plusLineContent = originalLines[plusIndices[j]].substring(1);   // remove '+'
 
-      if (isWhitespaceOnlyDifference(minusLineContent, plusLineContent)) {
-        // Mark both lines as removable
-        linesToRemove.add(minusIndices[i]);
-        linesToRemove.add(plusIndices[j]);
+    // We need a way to map hunk lines to actual patchedContent indices.
+    // The hunk contains original and new lines in order:
+    // Context lines (no + or -): appear unchanged in both original and patched.
+    // Minus lines: appear in original, removed in patched.
+    // Plus lines: appear in patched, not in original.
+    //
+    // After the patch was applied, patchedContent should reflect:
+    //   context lines unchanged
+    //   minus lines removed
+    //   plus lines added
+    //
+    // The patched lines in this hunk start at pStart in the patched file. The final layout of lines in patchedContent for this hunk:
+    // - All context lines + plus lines are present in patchedContent at consecutive indices starting at pStart.
+    // - Minus lines are not present in patchedContent.
+    //
+    // So, let's build a mapping of hunk lines that are present in the patched file (context+plus) to their indices in patchedContent.
+    const hunkContextAndPlus = lines.filter(l => !l.startsWith('-'));
+    // The first line of hunkContextAndPlus corresponds to patchedContent[pStart],
+    // the second line to patchedContent[pStart+1], and so forth.
+    // minus lines don't appear in patchedContent directly.
+
+    while (i < minusLines.length && j < plusLines.length) {
+      const minusLine = minusLines[i];
+      const plusLine = plusLines[j];
+
+      if (isWhitespaceOnlyDifference(minusLine, plusLine)) {
+        // We found a whitespace-only change. Let's revert it.
+        // That means we remove the plusLine from patchedContent and insert minusLine in its position.
+
+        // Find the index of this plus line in the hunkContextAndPlus array:
+        const plusFullLine = '+' + plusLine;
+        const plusIndexInHunk = hunkContextAndPlus.indexOf(plusFullLine);
+        // Patched file index:
+        const plusPatchedIndex = pStart + plusIndexInHunk;
+
+        // Remove the plus line from patched file
+        patchedContent.splice(plusPatchedIndex, 1);
+
+        // Now we need to insert the minusLine in the correct position.
+        // The minus line originally appeared among context and minus lines.
+        //
+        // The position to insert the minus line is where it would have been if no changes were made.
+        // The minus lines and context lines together correspond to the original file lines.
+        // In the patched file, after reverting this whitespace change, the line should appear in the same relative position.
+        
+        // Let's reconstruct what the line-up would be if minus lines were present:
+        // Among hunk lines, find the position of this minus line if we consider both context and minus lines.
+        const hunkContextAndMinus = lines.filter(l => !l.startsWith('+'));
+        const minusFullLine = '-' + minusLine;
+        const minusIndexInHunk = hunkContextAndMinus.indexOf(minusFullLine);
+
+        // The position in patchedContent for minus line after reverting:
+        // The first line of hunkContextAndMinus aligns with patchedContent[pStart],
+        // so patchedContent insertion index = pStart + minusIndexInHunk.
+        //
+        // But we just removed one plus line before inserting. The removal and insertion happen at a known index.
+        // Actually, since minusIndexInHunk references a line in the combined set of context+minus lines,
+        // and we know context+plus lines were mapped from pStart,
+        // we can trust that pStart + minusIndexInHunk is correct.
+
+        const minusPatchedIndex = pStart + minusIndexInHunk;
+
+        // Insert the minus line at minusPatchedIndex
+        patchedContent.splice(minusPatchedIndex, 0, minusLine);
       }
+
       i++;
       j++;
     }
-
-    // Filter out lines that were identified as whitespace-only differences
-    hunk.lines = hunk.lines.filter((_, idx) => !linesToRemove.has(idx));
-
-    // Update hunk header line counts
-    const minusCount = hunk.lines.filter(l => l.startsWith('-')).length;
-    const plusCount = hunk.lines.filter(l => l.startsWith('+')).length;
-    const contextCount = hunk.lines.filter(l => !l.startsWith('+') && !l.startsWith('-')).length;
-    hunk.originalCount = contextCount + minusCount;
-    hunk.patchedCount = contextCount + plusCount;
-
-    // Update header
-    const headerRegex = /^@@ -(\d+),?(\d*) \+(\d+),?(\d*) @@/;
-    const match = hunk.header.match(headerRegex);
-    if (match) {
-      const [ , oStartStr, , pStartStr ] = match;
-      hunk.header = `@@ -${oStartStr},${hunk.originalCount} +${pStartStr},${hunk.patchedCount} @@`;
-    }
   }
 
-  // Remove hunks that no longer have any changes
-  parsed.hunks = parsed.hunks.filter(h => h.lines.some(l => l.startsWith('+') || l.startsWith('-')));
-
-  return parsed;
+  await fs.writeFile(patchedJsFilePath, patchedContent.join('\n'), 'utf8');
 }
 
-function serializePatch(parsed: ParsedPatch): string {
-  const lines: string[] = [];
-  const { original, patched } = parsed.filePaths;
-
-  lines.push(`--- ${original}`);
-  lines.push(`+++ ${patched}`);
-
-  for (const hunk of parsed.hunks) {
-    lines.push(hunk.header);
-    lines.push(...hunk.lines);
-  }
-
-  return lines.join('\n');
-}
-
-export async function processPatchAndShowDiff(
+/**
+ * This function:
+ * - Reverts whitespace-only changes in the patched JS file using only the patch file.
+ * - Then uses `code --diff` to show the diff before and after the revert.
+ */
+export async function revertWhitespaceOnlyAndShowDiff(
   patchFilePath: string,
-  originalJsFilePath: string,
-  patchedJsFilePath: string,
-  outputPatchFilePath: string
+  patchedJsFilePath: string
 ): Promise<void> {
-  // Parse original patch
-  const parsed = await parsePatchFile(patchFilePath);
+  // Save a backup of the patched file before changes
+  const beforeContent = await fs.readFile(patchedJsFilePath, 'utf8');
+  const beforeTempFile = patchedJsFilePath + '.before_revert.tmp';
+  await fs.writeFile(beforeTempFile, beforeContent, 'utf8');
 
-  // Remove whitespace-only changes
-  const cleaned = removeWhitespaceOnlyChanges(parsed);
+  // Revert whitespace-only changes in-place
+  await revertWhitespaceOnlyChanges(patchFilePath, patchedJsFilePath);
 
-  // Serialize back to a new patch file
-  const newPatchContent = serializePatch(cleaned);
-  await fs.writeFile(outputPatchFilePath, newPatchContent, 'utf8');
-
-  // Show differences using VS Code's diff
-  const vsCode = spawn('code', ['--diff', originalJsFilePath, patchedJsFilePath], {
+  // Show differences using VS Code
+  const vsCode = spawn('code', ['--diff', beforeTempFile, patchedJsFilePath], {
     stdio: 'inherit'
   });
 
@@ -168,12 +200,14 @@ export async function processPatchAndShowDiff(
     if (code !== 0) {
       console.error(`VS Code exited with code: ${code}`);
     }
+    // Cleanup the temporary file
+    fs.unlink(beforeTempFile).catch(() => { /* ignore errors */ });
   });
 }
 
 // Example usage:
 // (async () => {
-//   await processPatchAndShowDiff('example.patch', 'original.js', 'patched.js', 'cleaned_example.patch');
+//   await revertWhitespaceOnlyAndShowDiff('example.patch', 'patched.js');
 // })();
 
 ```
